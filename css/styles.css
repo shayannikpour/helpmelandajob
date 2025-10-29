@@ -81,3 +81,14 @@ nav a:hover {
     background-color: #999a9a;  
     transform: scale(1.05);        
 }
+
+#apiOutput {
+   margin-top: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 80%;
+  height: 400px;       
+  overflow-y: auto;  
+  white-space: pre-wrap;
+  font-family: monospace;
+}

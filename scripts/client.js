@@ -127,9 +127,62 @@ function logout() {
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   const logoutBtn = document.getElementById('logoutBtn');
+  const button = document.getElementById('apiButton');
+  const outputDiv = document.getElementById('apiOutput');
+
+ button.addEventListener('click', async () => {
+  outputDiv.textContent = 'Loading...';
+
+  try {
+    const res = await fetch('http://167.172.116.168:8000/jobs/search?keyword=programming&location=Vancouver%2C%20BC&limit=5');
+    if (!res.ok) {
+      outputDiv.textContent = `Error: ${res.status} ${res.statusText}`;
+      return;
+    }
+
+    const data = await res.json();
+
+    if (data.error) {
+      outputDiv.textContent = `Error: ${data.error}`;
+      return;
+    }
+
+    if (!data.jobs || data.jobs.length === 0) {
+      outputDiv.textContent = 'No jobs found.';
+      return;
+    }
+
+    outputDiv.innerHTML = '';
+
+    data.jobs.forEach(job => {
+      const jobDiv = document.createElement('div');
+      jobDiv.style.border = '1px solid #ccc';
+      jobDiv.style.padding = '10px';
+      jobDiv.style.marginBottom = '10px';
+      jobDiv.style.borderRadius = '5px';
+      jobDiv.style.backgroundColor = '#f9f9f9';
+
+      jobDiv.innerHTML = `
+        <h3><a href="${job.url}" target="_blank">${job.title}</a></h3>
+        <p><strong>Company:</strong> ${job.company}</p>
+        <p><strong>Location:</strong> ${job.location}</p>
+        <p><strong>Summary:</strong> ${job.summary}</p>
+        <p><strong>URL:</strong> <a href="${job.url}" target="_blank">${job.url}</a></p>
+      `;
+
+      outputDiv.appendChild(jobDiv);
+    });
+
+  } catch (err) {
+    outputDiv.textContent = `Network error: ${err.message}`;
+  }
+});
+
+
 
   if (loginForm) loginForm.addEventListener('submit', handleLogin);
   if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
   if (!loginForm) verifyLogin();
 });
+
