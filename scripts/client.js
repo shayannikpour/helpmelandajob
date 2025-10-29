@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://helpmelandajob-server.onrender.com';
 
 async function handleLogin(e) {
   e.preventDefault();
