@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     responseContainer.textContent = 'Thinking...';
 
     try {
-      const res = await fetch('https://167.172.116.168:8000/v1/chat/completions', {
+      const res = await fetch('https://teamv5.duckdns.org/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
