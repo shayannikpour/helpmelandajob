@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     responseContainer.textContent = 'Thinking...';
 
     try {
-      const res = await fetch('http://167.172.116.168:8000/v1/chat/completions', {
+      const res = await fetch('https://167.172.116.168:8000/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
   outputDiv.textContent = 'Loading...';
 
   try {
-    const res = await fetch('http://167.172.116.168:8000/jobs/search?keyword=programming&location=Vancouver%2C%20BC&limit=5');
+    const res = await fetch('https://167.172.116.168:8000/jobs/search?keyword=programming&location=Vancouver%2C%20BC&limit=5');
     if (!res.ok) {
       outputDiv.textContent = `Error: ${res.status} ${res.statusText}`;
       return;
