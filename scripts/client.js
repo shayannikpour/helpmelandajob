@@ -129,7 +129,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
   const button = document.getElementById('apiButton');
   const outputDiv = document.getElementById('apiOutput');
+  const chatContainer = document.getElementById('chat-container');
+   const sendBtn = document.getElementById('sendBtn');
+  const userInput = document.getElementById('userInput');
+  const responseContainer = document.getElementById('responseContainer');
 
+  if (chatContainer) {
+   sendBtn.addEventListener('click', async () => {
+    const message = userInput.value.trim();
+    if (!message) {
+      responseContainer.textContent = 'Please enter a message.';
+      return;
+    }
+
+    responseContainer.textContent = 'Thinking...';
+
+    try {
+      const res = await fetch('http://167.172.116.168:8000/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: message }]
+        })
+      });
+
+      if (!res.ok) {
+        responseContainer.textContent = `Error: ${res.status} ${res.statusText}`;
+        return;
+      }
+
+      const data = await res.json();
+
+      const content = data?.choices?.[0]?.message?.content || 'No response received.';
+      responseContainer.innerHTML = `<strong>Assistant:</strong><br>${content.replace(/\n/g, '<br>')}`;
+
+    } catch (err) {
+      responseContainer.textContent = `Request failed: ${err.message}`;
+    }
+  });
+}
+  
+
+  if (button || outputDiv){
  button.addEventListener('click', async () => {
   outputDiv.textContent = 'Loading...';
 
@@ -177,6 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
     outputDiv.textContent = `Network error: ${err.message}`;
   }
 });
+  }
+
 
 
 
