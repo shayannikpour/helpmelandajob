@@ -228,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!loginForm) verifyLogin();
 });
+
 function setupResumeDropdown() {
     const addResumeBtn = document.getElementById('addResumeBtn');
     const resumeContainer = document.getElementById('resumeContainer');
@@ -236,8 +237,9 @@ function setupResumeDropdown() {
 
     let isVisible = false;
 
-    addResumeBtn.addEventListener('click', () => {
+    addResumeBtn.addEventListener('click', async () => {
         if (!isVisible) {
+
             if (!document.getElementById('resumeText')) {
                 const textarea = document.createElement('textarea');
                 textarea.id = 'resumeText';
@@ -279,7 +281,6 @@ function setupResumeDropdown() {
                         });
 
                         const data = await res.json();
-
                         if (res.ok) {
                             alert('Resume saved successfully!');
                         } else {
@@ -290,11 +291,28 @@ function setupResumeDropdown() {
                         alert('Network error while saving resume.');
                     }
                 });
+
+                // Load existing resume
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        const res = await fetch(`${API_BASE}/user/resume`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        if (res.ok || data.resume !== undefined) {
+                            textarea.value = data.resume || '';
+                        }
+                    } catch (err) {
+                        console.error('Failed to load existing resume:', err);
+                    }
+                }
             }
 
             resumeContainer.style.display = 'block';
             addResumeBtn.textContent = 'Hide Resume';
             isVisible = true;
+
         } else {
             resumeContainer.style.display = 'none';
             addResumeBtn.textContent = 'Add new Resume';
