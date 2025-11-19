@@ -229,13 +229,40 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!loginForm) verifyLogin();
 });
 
+
 function setupResumeDropdown() {
     const addResumeBtn = document.getElementById('addResumeBtn');
     const resumeContainer = document.getElementById('resumeContainer');
+    const currentResumeContainer = document.getElementById('currentResumeContainer');
 
-    if (!addResumeBtn || !resumeContainer) return;
+    if (!addResumeBtn || !resumeContainer || !currentResumeContainer) return;
 
     let isVisible = false;
+
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    // Load existing resume and display it in the div
+    async function loadCurrentResume() {
+        try {
+            const res = await fetch(`${API_BASE}/user/resume`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            currentResumeContainer.textContent = data.resume || 'No resume uploaded yet.';
+            currentResumeContainer.style.whiteSpace = 'pre-wrap'; // preserve line breaks
+            currentResumeContainer.style.border = '1px solid #ccc';
+            currentResumeContainer.style.padding = '10px';
+            currentResumeContainer.style.marginBottom = '10px';
+            currentResumeContainer.style.backgroundColor = '#f9f9f9';
+            currentResumeContainer.style.minHeight = '50px';
+        } catch (err) {
+            console.error('Failed to load resume:', err);
+            currentResumeContainer.textContent = 'Error loading resume';
+        }
+    }
+
+    loadCurrentResume();
 
     addResumeBtn.addEventListener('click', async () => {
         if (!isVisible) {
@@ -264,12 +291,6 @@ function setupResumeDropdown() {
                         return;
                     }
 
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        alert('You must be logged in to save your resume.');
-                        return;
-                    }
-
                     try {
                         const res = await fetch(`${API_BASE}/user/resume`, {
                             method: 'POST',
@@ -279,10 +300,11 @@ function setupResumeDropdown() {
                             },
                             body: JSON.stringify({ resume: resumeText })
                         });
-
                         const data = await res.json();
                         if (res.ok) {
                             alert('Resume saved successfully!');
+                            // Update the current resume div
+                            loadCurrentResume();
                         } else {
                             alert(`Failed to save resume: ${data.message || res.status}`);
                         }
@@ -292,20 +314,15 @@ function setupResumeDropdown() {
                     }
                 });
 
-                // Load existing resume
-                const token = localStorage.getItem('token');
-                if (token) {
-                    try {
-                        const res = await fetch(`${API_BASE}/user/resume`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        const data = await res.json();
-                        if (res.ok || data.resume !== undefined) {
-                            textarea.value = data.resume || '';
-                        }
-                    } catch (err) {
-                        console.error('Failed to load existing resume:', err);
-                    }
+                // Pre-fill textarea with existing resume
+                try {
+                    const res = await fetch(`${API_BASE}/user/resume`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    textarea.value = data.resume || '';
+                } catch (err) {
+                    console.error('Failed to load existing resume:', err);
                 }
             }
 
