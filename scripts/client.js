@@ -16,13 +16,13 @@ async function handleLogin(e) {
 
     const data = await res.json();
 
-   if (res.ok && data.token) {
-    localStorage.setItem('token', data.token);
-    if (data.isAdmin) {
+    if (res.ok && data.token) {
+      localStorage.setItem('token', data.token);
+      if (data.isAdmin) {
         window.location.href = 'admin-home.html';
-    } else {
+      } else {
         window.location.href = 'home.html';
-    }
+      }
     } else {
       status.textContent = data.message || 'Login failed';
       status.style.color = 'red';
@@ -33,7 +33,6 @@ async function handleLogin(e) {
     status.style.color = 'red';
   }
 }
-
 
 
 async function handleRegister(e) {
@@ -56,8 +55,6 @@ async function handleRegister(e) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
   });
-
-
 
   const data = await res.json();
 
@@ -357,22 +354,22 @@ function improveResume() {
         improvedResumeContainer.textContent = 'Improving your resume, please wait...';
 
         try {
-            const res = await fetch('https://teamv5.duckdns.org/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: [
-                        { role: 'system', content: 'You are an expert resume enhancer. Suggest point form improvements for the following resume to make it more appealing to employers.' },
-                        { role: 'user', content: `This is the resume:\n\n${resumeText}` }
-                    ]
-                })
-            });
-            if (!res.ok) {
-                improvedResumeContainer.textContent = `Error: ${res.status} ${res.statusText}`;
-                return;
-            }
-            const data = await res.json();
-            const improvedContent = data?.choices?.[0]?.message?.content || 'No response received.';
+          // Send resume to server endpoint which proxies to the AI
+          const token = localStorage.getItem('token');
+          const res = await fetch(`${API_BASE}/ai/resume/improve`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ resume: resumeText })
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}));
+            improvedResumeContainer.textContent = `Error: ${res.status} ${errJson.message || res.statusText}`;
+            return;
+          }
+
+          const data = await res.json();
+          const improvedContent = data?.ai?.choices?.[0]?.message?.content || data?.ai?.message || 'No response received.';
 
             // Side-by-side view: AI recommendations (left) and editable current resume (right)
             improvedResumeContainer.innerHTML = `
