@@ -228,4 +228,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!loginForm) verifyLogin();
 });
+function setupResumeDropdown() {
+    const addResumeBtn = document.getElementById('addResumeBtn');
+    const resumeContainer = document.getElementById('resumeContainer');
 
+    if (!addResumeBtn || !resumeContainer) return;
+
+    let isVisible = false;
+
+    addResumeBtn.addEventListener('click', () => {
+        if (!isVisible) {
+            if (!document.getElementById('resumeText')) {
+                const textarea = document.createElement('textarea');
+                textarea.id = 'resumeText';
+                textarea.placeholder = 'Paste your resume text here...';
+                textarea.style.width = '100%';
+                textarea.style.height = '300px';
+                textarea.style.padding = '10px';
+                textarea.style.fontSize = '16px';
+                resumeContainer.appendChild(textarea);
+
+                // Add a save button
+                const saveBtn = document.createElement('button');
+                saveBtn.id = 'saveResumeBtn';
+                saveBtn.textContent = 'Save Resume';
+                saveBtn.style.marginTop = '10px';
+                resumeContainer.appendChild(saveBtn);
+
+                saveBtn.addEventListener('click', async () => {
+                    const resumeText = textarea.value.trim();
+                    if (!resumeText) {
+                        alert('Please paste your resume first.');
+                        return;
+                    }
+
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('You must be logged in to save your resume.');
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`${API_BASE}/user/resume`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ resume: resumeText })
+                        });
+
+                        const data = await res.json();
+
+                        if (res.ok) {
+                            alert('Resume saved successfully!');
+                        } else {
+                            alert(`Failed to save resume: ${data.message || res.status}`);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Network error while saving resume.');
+                    }
+                });
+            }
+
+            resumeContainer.style.display = 'block';
+            addResumeBtn.textContent = 'Hide Resume';
+            isVisible = true;
+        } else {
+            resumeContainer.style.display = 'none';
+            addResumeBtn.textContent = 'Add new Resume';
+            isVisible = false;
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', setupResumeDropdown);
