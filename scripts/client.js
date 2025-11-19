@@ -339,3 +339,121 @@ function setupResumeDropdown() {
 }
 
 document.addEventListener('DOMContentLoaded', setupResumeDropdown);
+
+function improveResume() {
+    const improveBtn = document.getElementById('improveResumeBtn');
+    const improvedResumeContainer = document.getElementById('improvedResumeContainer');
+
+    if (!improveBtn || !improvedResumeContainer) return;
+
+    improveBtn.addEventListener('click', async () => {
+      console.log("Improve Resume button clicked");
+        const currentResumeContainer = document.getElementById('currentResumeContainer');
+        const resumeText = currentResumeContainer.textContent.trim();
+        if (!resumeText || resumeText === 'No resume uploaded yet.' || resumeText === 'Error loading resume') {
+            alert('Please upload your resume first.');
+            return;
+        }
+        improvedResumeContainer.textContent = 'Improving your resume, please wait...';
+
+        try {
+            const res = await fetch('https://teamv5.duckdns.org/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [
+                        { role: 'system', content: 'You are an expert resume enhancer. Suggest point form improvements for the following resume to make it more appealing to employers.' },
+                        { role: 'user', content: `This is the resume:\n\n${resumeText}` }
+                    ]
+                })
+            });
+            if (!res.ok) {
+                improvedResumeContainer.textContent = `Error: ${res.status} ${res.statusText}`;
+                return;
+            }
+            const data = await res.json();
+            const improvedContent = data?.choices?.[0]?.message?.content || 'No response received.';
+
+            // Side-by-side view: AI recommendations (left) and editable current resume (right)
+            improvedResumeContainer.innerHTML = `
+              <div style="display:flex; gap:16px; align-items:flex-start;">
+                <div style="flex:1;">
+                  <h3>AI Recommendations</h3>
+                  <div id="improvedResumeContent" style="white-space: pre-wrap; border:1px solid #ddd; padding:10px; background:#fff; min-height:200px;">${improvedContent.replace(/\n/g, '<br>')}</div>
+                </div>
+                <div style="flex:1;">
+                  <h3>Your Current Resume (editable)</h3>
+                  <textarea id="resumeEditor" style="width:100%; height:320px; padding:8px; font-size:14px;">Loading current resume...</textarea>
+                  <div style="margin-top:8px; display:flex; gap:8px;">
+                    <button id="saveResumeBtn">Save</button>
+                    <button id="cancelResumeBtn">Cancel</button>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:8px;"><button id="discardImprovementsBtn">Discard</button></div>
+            `;
+
+            // Fill editor with current resume text (loaded from page)
+            const currentResumeContainerElem = document.getElementById('currentResumeContainer');
+            const editor = document.getElementById('resumeEditor');
+            const discardBtn = document.getElementById('discardImprovementsBtn');
+            const saveBtn = document.getElementById('saveResumeBtn');
+            const cancelBtn = document.getElementById('cancelResumeBtn');
+
+            if (editor) {
+              // prefer the visible current resume content if present, otherwise empty
+              const currentText = (currentResumeContainerElem && currentResumeContainerElem.textContent && currentResumeContainerElem.textContent.trim() !== '')
+                ? currentResumeContainerElem.textContent
+                : '';
+              editor.value = currentText;
+            }
+
+            if (discardBtn) {
+              discardBtn.addEventListener('click', () => { improvedResumeContainer.innerHTML = ''; });
+            }
+
+            // POST helper
+            async function postResume(text, button) {
+              const token = localStorage.getItem('token');
+              if (!token) { alert('You must be logged in to save your resume.'); return; }
+              if (button) { button.disabled = true; button.textContent = 'Saving...'; }
+              try {
+                const res2 = await fetch(`${API_BASE}/user/resume`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                  body: JSON.stringify({ resume: text })
+                });
+                const json = await res2.json().catch(() => ({}));
+                if (res2.ok) {
+                  if (currentResumeContainerElem) {
+                    currentResumeContainerElem.textContent = text;
+                    currentResumeContainerElem.style.whiteSpace = 'pre-wrap';
+                  }
+                  improvedResumeContainer.innerHTML = '<p style="color:green;">Resume saved successfully.</p>';
+                } else {
+                  alert(`Failed to save resume: ${json.message || res2.status}`);
+                  if (button) { button.disabled = false; button.textContent = 'Save'; }
+                }
+              } catch (err) {
+                alert(`Network error: ${err.message}`);
+                if (button) { button.disabled = false; button.textContent = 'Save'; }
+              }
+            }
+
+            if (saveBtn && editor) {
+              saveBtn.addEventListener('click', async () => { await postResume(editor.value, saveBtn); });
+            }
+
+            if (cancelBtn) {
+              cancelBtn.addEventListener('click', () => {
+                // reset editor to the current shown resume
+                if (currentResumeContainerElem && editor) editor.value = currentResumeContainerElem.textContent || '';
+              });
+            }
+        } catch (err) {
+            improvedResumeContainer.textContent = `Request failed: ${err.message}`;
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', improveResume);
