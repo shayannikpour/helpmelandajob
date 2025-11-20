@@ -3,12 +3,37 @@ footer {
     color: #f1f1f1;                
     text-align: center;           
     padding: 15px 0;                
-    position: fixed;               
-    bottom: 0;
-    left: 0;
+    /* Removed position: fixed */
     width: 100%;                    
     font-size: 0.9rem;              
-    border-top: 2px solid #3a3a3a;  
+    border-top: 2px solid #3a3a3a;
+    margin-top: auto;  /* This pushes footer to bottom */
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+    padding-bottom: 20px;  /* Optional: adds space before footer */
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;  /* This makes it fill the body */
+}
+
+.content-wrap {
+    flex: 1 0 auto;
 }
 
 footer p {

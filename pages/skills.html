@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sample HTML Page</title>
+    <title>HelpMeLandAJob</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
@@ -24,26 +24,15 @@
 
     <h1>Your Skills:</h1>
 
-    <section class="skills-list">
-        <article class="skill">
-            <h2>JavaScript</h2>
-            <p>Strong understanding of ES6+, asynchronous programming, and DOM manipulation. Experienced in using frameworks like React and Node.js.</p>
-        </article>
-
-        <article class="skill">
-            <h2>SQL & Database Management</h2>
-            <p>Proficient in writing queries, managing relational databases, and optimizing performance for large datasets using MySQL and PostgreSQL.</p>
-        </article>
-
-        <article class="skill">
-            <h2>Data Visualization</h2>
-            <p>Experienced in transforming raw data into insights using tools like Excel, Power BI, and D3.js for clear and effective presentations.</p>
-        </article>
+    <!-- Dynamic skills container populated by scripts/client.js -->
+    <section id="skillsContainer" class="skills-list">
+        <!-- Skills will be rendered here -->
     </section>
 
-    <a href="">
-        <button>Add new skill</button>
-    </a>
+    <div style="margin-top:12px;">
+        <p>Enter one skill (use a single word, like “Java” or “Leadership”)</p>
+        <button id="addSkillBtn">Add new skill</button>
+    </div>
     <footer>
         <p>&copy; 2025 HelpMeLandAJob. All rights reserved.</p>
     </footer>
