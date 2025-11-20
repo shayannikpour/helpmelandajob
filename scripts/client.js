@@ -731,8 +731,7 @@ async function setupJobSearchPage() {
     output.textContent = `Network error: ${err.message}`;
   }
 });
-
-
+}
 //   btn.addEventListener('click', async () => {
 //     output.textContent = "Searching jobs...";
 
