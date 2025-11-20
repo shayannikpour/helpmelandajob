@@ -141,6 +141,8 @@ async function verifyLogin() {
       if (isAdminStored && !window.location.href.includes('admin-home.html')) {
         window.location.href = 'admin-home.html';
       }
+      // update API calls display (if present on the page)
+      fetchAndShowApiCalls().catch(err => console.error('Failed to load api calls:', err));
     } else {
       localStorage.removeItem('token');
       localStorage.removeItem('isAdmin');
@@ -154,7 +156,37 @@ async function verifyLogin() {
   }
 }
 
+// Fetch the user's api_calls and show "{api_calls}/20" in #apiCallsDisplay (if present)
+async function fetchAndShowApiCalls() {
+  const el = document.getElementById('apiCallsDisplay');
+  if (!el) return;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    el.textContent = `0/20`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/user/api_calls`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      console.error('Failed to fetch api_calls', res.status);
+      el.textContent = `0/20`;
+      return;
+    }
+    const data = await res.json();
+    const count = typeof data.api_calls === 'number' ? data.api_calls : Number(data.api_calls || 0);
+    el.textContent = `${count}/${20}`;
+  } catch (err) {
+    console.error('Error fetching api_calls:', err);
+    el.textContent = `0/20`;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', verifyLogin);
+// Also attempt to populate the api call counter on page load (will use token if present)
+document.addEventListener('DOMContentLoaded', () => { fetchAndShowApiCalls().catch(() => {}); });
 
 function logout() {
   localStorage.removeItem('token');
