@@ -112,8 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (registerForm) registerForm.addEventListener('submit', handleRegister);
 });
 
-
-
 async function verifyLogin() {
   const token = localStorage.getItem('token');
   const registerForm = document.getElementById('registerForm');
@@ -646,3 +644,79 @@ function setupSkillsPage() {
 }
 
 document.addEventListener('DOMContentLoaded', setupSkillsPage);
+
+// ==== USER JOB SEARCH PAGE ====
+
+async function setupJobSearchPage() {
+  const btn = document.getElementById('findJobsBtn');
+  const output = document.getElementById('jobsOutput');
+  if (!btn || !output) return;
+
+  btn.addEventListener('click', async () => {
+    output.textContent = "Searching jobs...";
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      output.textContent = "Please log in first.";
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/jobs/search_user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          job_wanted: "Software Engineer",
+          location: "Vancouver",
+          skills: ["Java", "JavaScript", "Python", "SQL"],
+          limit: 5
+        })
+      });
+
+      if (!res.ok) {
+        output.textContent = `Error: ${res.status}`;
+        return;
+      }
+
+      const data = await res.json();
+
+      if (data.error) {
+        output.textContent = `Server Error: ${data.error}`;
+        return;
+      }
+
+      if (!data.jobs || data.jobs.length === 0) {
+        output.textContent = "No matching jobs found.";
+        return;
+      }
+
+      // render only FILTERED jobs
+      output.innerHTML = "";
+
+      data.jobs.forEach(job => {
+        const div = document.createElement("div");
+        div.style.border = "1px solid #ccc";
+        div.style.padding = "10px";
+        div.style.marginBottom = "10px";
+        div.style.background = "#f9f9f9";
+
+        div.innerHTML = `
+          <h3><a href="${job.url}" target="_blank">${job.title}</a></h3>
+          <p><strong>Company:</strong> ${job.company}</p>
+          <p><strong>Location:</strong> ${job.location || "N/A"}</p>
+          <p><strong>AI Summary:</strong><br>${job.ai_summary || "No summary"}</p>
+        `;
+
+        output.appendChild(div);
+      });
+
+    } catch (err) {
+      output.textContent = `Network error: ${err.message}`;
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', setupJobSearchPage);
