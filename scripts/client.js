@@ -1,5 +1,351 @@
 const API_BASE = 'https://helpmelandajob-server.onrender.com';
 
+
+async function loadAdminPage() {
+  const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username");
+
+  const nameSpan = document.getElementById("usernameDisplay");
+  if (nameSpan && username) nameSpan.textContent = username;
+
+  const usersTable = document.getElementById("usersTable");
+  if (!usersTable) return; // Not on admin page
+
+  const errorBox = document.getElementById("adminError");
+
+  try {
+    const res = await fetch("https://helpmelandajob-server.onrender.com/admin/users", {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to load users");
+
+    const tbody = usersTable.querySelector("tbody");
+    tbody.innerHTML = "";
+
+    data.users.forEach(u => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${u.username}</td>
+        <td>${u.api_calls}</td>
+        <td>${u.isadmin ? "✔️" : "❌"}</td>
+        <td>
+            <button class="delete-btn" onclick="deleteUser(${u.id})">
+                Delete
+            </button>
+
+            <button class="admin-btn" onclick="toggleAdmin(${u.id}, ${u.isadmin})">
+                ${u.isadmin ? "Remove Admin" : "Make Admin"}
+            </button>
+        </td>
+    `;
+
+      tbody.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error("Admin page error:", err);
+    errorBox.textContent = err.message;
+    errorBox.style.display = "block";
+  }
+}
+
+
+
+window.deleteUser = async function (id) {
+  if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) {
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch(
+      `https://helpmelandajob-server.onrender.com/admin/users/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Failed to delete user");
+      return;
+    }
+
+    // Refresh user list
+    loadAdminPage();
+
+  } catch (err) {
+    console.error("Delete user error:", err);
+    alert("Server error while deleting user.");
+  }
+};
+
+
+
+window.toggleAdmin = async function (id, currentStatus) {
+  const token = localStorage.getItem("token");
+
+  const newStatus = !currentStatus;
+
+  const confirmMsg = newStatus
+    ? "Grant admin access to this user?"
+    : "Remove admin access from this user?";
+
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const res = await fetch(
+      `https://helpmelandajob-server.onrender.com/admin/users/${id}/isAdmin`,
+      {
+        method: "PATCH",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ isAdmin: newStatus })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Failed to update admin status");
+      return;
+    }
+
+    loadAdminPage();
+
+  } catch (err) {
+    console.error("Admin toggle error:", err);
+    alert("Server error while updating admin status.");
+  }
+};
+
+
+
+
+document.addEventListener("DOMContentLoaded", loadAdminPage);
+
+async function loadEndpoints() {
+  const token = localStorage.getItem("token");
+
+  const table = document.getElementById("endpointsTable");
+  if (!table) return; // Do nothing if not on admin page
+
+  const errorBox = document.getElementById("endpointsError");
+
+  try {
+    const res = await fetch("https://helpmelandajob-server.onrender.com/admin/endpoints", {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to load endpoints");
+
+    const tbody = table.querySelector("tbody");
+    tbody.innerHTML = "";
+
+    data.endpoints.forEach(ep => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+                <td>${ep.id}</td>
+                <td>${ep.method}</td>
+                <td>${ep.endpoint}</td>
+                <td>${ep.requests}</td>
+            `;
+      tbody.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error("Endpoints load error:", err);
+    errorBox.textContent = err.message;
+    errorBox.style.display = "block";
+  }
+}
+
+
+document.addEventListener("DOMContentLoaded", loadEndpoints);
+
+
+function getLeetCodeQuestions() {
+
+  if (!document.getElementById("leetcodeForm")) return;
+
+  document.getElementById("leetcodeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const lang = document.getElementById("language").value;
+    const diff = document.getElementById("difficulty").value;
+    const submitBtn = document.getElementById("submitBtn");
+    const loadingDiv = document.getElementById("loadingDiv");
+    const errorDiv = document.getElementById("errorDiv");
+    const questionsContainer = document.getElementById("questionsContainer");
+
+    errorDiv.style.display = "none";
+    questionsContainer.innerHTML = "";
+    loadingDiv.style.display = "block";
+    submitBtn.disabled = true;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      loadingDiv.style.display = "none";
+      submitBtn.disabled = false;
+      errorDiv.textContent = "You must be logged in to use this feature.";
+      errorDiv.style.display = "block";
+      return;
+    }
+
+    if (!lang || !diff) {
+      loadingDiv.style.display = "none";
+      submitBtn.disabled = false;
+      errorDiv.textContent = "Please select both language and difficulty.";
+      errorDiv.style.display = "block";
+      return;
+    }
+
+    // Drop JSON, use QUESTION/ANSWER markers instead – much more robust
+    const prompt = `
+You are generating LeetCode-style coding interview questions.
+
+Respond in EXACTLY this format, with these two sections and nothing else:
+
+QUESTION:
+<problem statement, max 3 sentences, max 400 characters, for ${lang} at ${diff} difficulty>
+
+ANSWER:
+<complete working ${lang} solution code plus a 1–3 sentence explanation>
+
+Rules:
+- Do NOT include any JSON.
+- Do NOT include markdown like \`\`\` fences.
+- Do NOT repeat these instructions.
+- Start the first line with "QUESTION:".
+- Later, on a new line, start the answer section with "ANSWER:".
+`;
+
+    try {
+      const response = await fetch(`${API_BASE}/ai/leetcode`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ prompt })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text().catch(() => "");
+        throw new Error(`Server error (${response.status}): ${errText || "Unable to get question"}`);
+      }
+
+      const data = await response.json();
+      const raw = data?.choices?.[0]?.message?.content || "";
+      console.log("AI RAW:", raw);
+
+      if (!raw || typeof raw !== "string") {
+        throw new Error("Empty or invalid AI response.");
+      }
+
+      const qa = parseQuestionAnswer(raw);
+
+      if (!qa || !qa.question) {
+        throw new Error("AI response was not in the expected format. Please try again.");
+      }
+
+      displayQuestions([qa]);
+
+    } catch (err) {
+      console.error(err);
+      errorDiv.textContent = err.message || "Something went wrong.";
+      errorDiv.style.display = "block";
+    } finally {
+      loadingDiv.style.display = "none";
+      submitBtn.disabled = false;
+    }
+  });
+
+
+
+  // Parse "QUESTION: ... ANSWER: ..." format
+  function parseQuestionAnswer(raw) {
+    const parts = raw.split(/ANSWER:/i);
+    if (parts.length < 2) {
+      return null;
+    }
+
+    const questionPart = parts[0].replace(/QUESTION:/i, "").trim();
+    const answerPart = parts.slice(1).join("ANSWER:").trim(); // in case "ANSWER:" appears again
+
+    // Basic sanity checks
+    if (!questionPart || questionPart.length < 10) {
+      return null;
+    }
+
+    return {
+      question: questionPart,
+      answer: answerPart || "No answer provided."
+    };
+  }
+
+  function displayQuestions(questions) {
+    const container = document.getElementById("questionsContainer");
+    container.innerHTML = "";
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      container.innerHTML = '<div class="error-message">No questions returned.</div>';
+      return;
+    }
+
+    questions.forEach((q, index) => {
+      const card = document.createElement("div");
+      card.className = "question-card";
+
+      const id = `answer-${index}`;
+
+      const questionText = q.question || "No question text provided.";
+      const answerText = q.answer || "No answer provided.";
+
+      card.innerHTML = `
+                <h3>Question ${index + 1}</h3>
+                <div class="question-content">${formatText(questionText)}</div>
+                <button class="reveal-btn" onclick="toggleAnswer('${id}', this)">Reveal Answer</button>
+                <div id="${id}" class="answer-content">${formatText(answerText)}</div>
+            `;
+
+      container.appendChild(card);
+    });
+  }
+
+  function formatText(text) {
+    if (!text) return "";
+    // Preserve newlines from the model
+    return text.replace(/\r\n/g, "\n").replace(/\n/g, "<br>");
+  }
+
+  window.toggleAnswer = function (id, btn) {
+    const box = document.getElementById(id);
+    const open = box.classList.toggle("revealed");
+    btn.textContent = open ? "Hide Answer" : "Reveal Answer";
+  };
+
+}
+
+document.addEventListener('DOMContentLoaded', getLeetCodeQuestions);
+
+
+
 // Simple UI message helpers to replace alert()
 function showGlobalMessage(msg, type = 'error') {
   let g = document.getElementById('globalMessage');
@@ -58,6 +404,8 @@ async function handleLogin(e) {
 
     if (res.ok && data.token) {
       localStorage.setItem('token', data.token);
+      localStorage.setItem('isAdmin', data.isAdmin);  // <-- FIXED
+
       if (data.isAdmin) {
         window.location.href = 'admin-home.html';
       } else {
@@ -73,6 +421,9 @@ async function handleLogin(e) {
     status.style.color = 'red';
   }
 }
+
+
+
 
 
 async function handleRegister(e) {
@@ -126,6 +477,7 @@ async function verifyLogin() {
   }
 
   try {
+    console.log("Hello")
     const res = await fetch(`${API_BASE}/verify-token`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -184,7 +536,7 @@ async function fetchAndShowApiCalls() {
 
 document.addEventListener('DOMContentLoaded', verifyLogin);
 // Also attempt to populate the api call counter on page load (will use token if present)
-document.addEventListener('DOMContentLoaded', () => { fetchAndShowApiCalls().catch(() => {}); });
+document.addEventListener('DOMContentLoaded', () => { fetchAndShowApiCalls().catch(() => { }); });
 
 function logout() {
   localStorage.removeItem('token');
@@ -197,80 +549,80 @@ document.addEventListener('DOMContentLoaded', () => {
   const button = document.getElementById('apiButton');
   const outputDiv = document.getElementById('apiOutput');
   const chatContainer = document.getElementById('chat-container');
-   const sendBtn = document.getElementById('sendBtn');
+  const sendBtn = document.getElementById('sendBtn');
   const userInput = document.getElementById('userInput');
   const responseContainer = document.getElementById('responseContainer');
 
   if (chatContainer) {
-   sendBtn.addEventListener('click', async () => {
-    const message = userInput.value.trim();
-    if (!message) {
-      responseContainer.textContent = 'Please enter a message.';
-      return;
-    }
-
-    responseContainer.textContent = 'Thinking...';
-
-    try {
-      const res = await fetch('https://teamv5.duckdns.org/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: message }]
-        })
-      });
-
-      if (!res.ok) {
-        responseContainer.textContent = `Error: ${res.status} ${res.statusText}`;
+    sendBtn.addEventListener('click', async () => {
+      const message = userInput.value.trim();
+      if (!message) {
+        responseContainer.textContent = 'Please enter a message.';
         return;
       }
 
-      const data = await res.json();
+      responseContainer.textContent = 'Thinking...';
 
-      const content = data?.choices?.[0]?.message?.content || 'No response received.';
-      responseContainer.innerHTML = `<strong>Assistant:</strong><br>${content.replace(/\n/g, '<br>')}`;
+      try {
+        const res = await fetch('https://teamv5.duckdns.org/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: message }]
+          })
+        });
 
-    } catch (err) {
-      responseContainer.textContent = `Request failed: ${err.message}`;
-    }
-  });
-}
-  
+        if (!res.ok) {
+          responseContainer.textContent = `Error: ${res.status} ${res.statusText}`;
+          return;
+        }
 
-  if (button || outputDiv){
- button.addEventListener('click', async () => {
-  outputDiv.textContent = 'Loading...';
+        const data = await res.json();
 
-  try {
-    const res = await fetch('https://167.172.116.168:8000/jobs/search?keyword=programming&location=Vancouver%2C%20BC&limit=5');
-    if (!res.ok) {
-      outputDiv.textContent = `Error: ${res.status} ${res.statusText}`;
-      return;
-    }
+        const content = data?.choices?.[0]?.message?.content || 'No response received.';
+        responseContainer.innerHTML = `<strong>Assistant:</strong><br>${content.replace(/\n/g, '<br>')}`;
 
-    const data = await res.json();
+      } catch (err) {
+        responseContainer.textContent = `Request failed: ${err.message}`;
+      }
+    });
+  }
 
-    if (data.error) {
-      outputDiv.textContent = `Error: ${data.error}`;
-      return;
-    }
 
-    if (!data.jobs || data.jobs.length === 0) {
-      outputDiv.textContent = 'No jobs found.';
-      return;
-    }
+  if (button || outputDiv) {
+    button.addEventListener('click', async () => {
+      outputDiv.textContent = 'Loading...';
 
-    outputDiv.innerHTML = '';
+      try {
+        const res = await fetch('https://167.172.116.168:8000/jobs/search?keyword=programming&location=Vancouver%2C%20BC&limit=5');
+        if (!res.ok) {
+          outputDiv.textContent = `Error: ${res.status} ${res.statusText}`;
+          return;
+        }
 
-    data.jobs.forEach(job => {
-      const jobDiv = document.createElement('div');
-      jobDiv.style.border = '1px solid #ccc';
-      jobDiv.style.padding = '10px';
-      jobDiv.style.marginBottom = '10px';
-      jobDiv.style.borderRadius = '5px';
-      jobDiv.style.backgroundColor = '#f9f9f9';
+        const data = await res.json();
 
-      jobDiv.innerHTML = `
+        if (data.error) {
+          outputDiv.textContent = `Error: ${data.error}`;
+          return;
+        }
+
+        if (!data.jobs || data.jobs.length === 0) {
+          outputDiv.textContent = 'No jobs found.';
+          return;
+        }
+
+        outputDiv.innerHTML = '';
+
+        data.jobs.forEach(job => {
+          const jobDiv = document.createElement('div');
+          jobDiv.style.border = '1px solid #ccc';
+          jobDiv.style.padding = '10px';
+          jobDiv.style.marginBottom = '10px';
+          jobDiv.style.borderRadius = '5px';
+          jobDiv.style.backgroundColor = '#f9f9f9';
+
+          jobDiv.innerHTML = `
         <h3><a href="${job.url}" target="_blank">${job.title}</a></h3>
         <p><strong>Company:</strong> ${job.company}</p>
         <p><strong>Location:</strong> ${job.location}</p>
@@ -278,13 +630,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <p><strong>URL:</strong> <a href="${job.url}" target="_blank">${job.url}</a></p>
       `;
 
-      outputDiv.appendChild(jobDiv);
-    });
+          outputDiv.appendChild(jobDiv);
+        });
 
-  } catch (err) {
-    outputDiv.textContent = `Network error: ${err.message}`;
-  }
-});
+      } catch (err) {
+        outputDiv.textContent = `Network error: ${err.message}`;
+      }
+    });
   }
 
 
@@ -298,151 +650,163 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function setupResumeDropdown() {
-    const addResumeBtn = document.getElementById('addResumeBtn');
-    const resumeContainer = document.getElementById('resumeContainer');
-    const currentResumeContainer = document.getElementById('currentResumeContainer');
+  const addResumeBtn = document.getElementById('addResumeBtn');
+  const resumeContainer = document.getElementById('resumeContainer');
+  const currentResumeContainer = document.getElementById('currentResumeContainer');
 
-    if (!addResumeBtn || !resumeContainer || !currentResumeContainer) return;
+  if (!addResumeBtn || !resumeContainer || !currentResumeContainer) return;
 
-    let isVisible = false;
+  let isVisible = false;
 
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const token = localStorage.getItem('token');
+  if (!token) return;
 
-    // Load existing resume and display it in the div
-    async function loadCurrentResume() {
-        try {
+  // Load existing resume and display it in the div
+  async function loadCurrentResume() {
+    try {
+      const res = await fetch(`${API_BASE}/user/resume`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      currentResumeContainer.textContent = data.resume || 'No resume uploaded yet.';
+      currentResumeContainer.style.whiteSpace = 'pre-wrap'; // preserve line breaks
+      currentResumeContainer.style.border = '1px solid #ccc';
+      currentResumeContainer.style.padding = '10px';
+      currentResumeContainer.style.marginBottom = '10px';
+      currentResumeContainer.style.backgroundColor = '#f9f9f9';
+      currentResumeContainer.style.minHeight = '50px';
+    } catch (err) {
+      console.error('Failed to load resume:', err);
+      currentResumeContainer.textContent = 'Error loading resume';
+    }
+  }
+
+  loadCurrentResume();
+
+  addResumeBtn.addEventListener('click', async () => {
+    if (!isVisible) {
+
+      if (!document.getElementById('resumeText')) {
+        const textarea = document.createElement('textarea');
+        textarea.id = 'resumeText';
+        textarea.placeholder = 'Paste your resume text here...';
+        textarea.style.width = '100%';
+        textarea.style.height = '300px';
+        textarea.style.padding = '10px';
+        textarea.style.fontSize = '16px';
+        resumeContainer.appendChild(textarea);
+
+        // Add a save button
+        const saveBtn = document.createElement('button');
+        saveBtn.id = 'saveResumeBtn';
+        saveBtn.textContent = 'Save Resume';
+        saveBtn.style.marginTop = '10px';
+        resumeContainer.appendChild(saveBtn);
+
+        saveBtn.addEventListener('click', async () => {
+          const resumeText = textarea.value.trim();
+          if (!resumeText) {
+            showInlineMessage(textarea, 'Please paste your resume first.', 'error');
+            return;
+          }
+
+          try {
             const res = await fetch(`${API_BASE}/user/resume`, {
-                headers: { Authorization: `Bearer ${token}` }
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ resume: resumeText })
             });
             const data = await res.json();
-            currentResumeContainer.textContent = data.resume || 'No resume uploaded yet.';
-            currentResumeContainer.style.whiteSpace = 'pre-wrap'; // preserve line breaks
-            currentResumeContainer.style.border = '1px solid #ccc';
-            currentResumeContainer.style.padding = '10px';
-            currentResumeContainer.style.marginBottom = '10px';
-            currentResumeContainer.style.backgroundColor = '#f9f9f9';
-            currentResumeContainer.style.minHeight = '50px';
-        } catch (err) {
-            console.error('Failed to load resume:', err);
-            currentResumeContainer.textContent = 'Error loading resume';
-        }
-    }
-
-    loadCurrentResume();
-
-    addResumeBtn.addEventListener('click', async () => {
-        if (!isVisible) {
-
-            if (!document.getElementById('resumeText')) {
-                const textarea = document.createElement('textarea');
-                textarea.id = 'resumeText';
-                textarea.placeholder = 'Paste your resume text here...';
-                textarea.style.width = '100%';
-                textarea.style.height = '300px';
-                textarea.style.padding = '10px';
-                textarea.style.fontSize = '16px';
-                resumeContainer.appendChild(textarea);
-
-                // Add a save button
-                const saveBtn = document.createElement('button');
-                saveBtn.id = 'saveResumeBtn';
-                saveBtn.textContent = 'Save Resume';
-                saveBtn.style.marginTop = '10px';
-                resumeContainer.appendChild(saveBtn);
-
-                saveBtn.addEventListener('click', async () => {
-                    const resumeText = textarea.value.trim();
-                      if (!resumeText) {
-                        showInlineMessage(textarea, 'Please paste your resume first.', 'error');
-                        return;
-                      }
-
-                    try {
-                        const res = await fetch(`${API_BASE}/user/resume`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ resume: resumeText })
-                        });
-                        const data = await res.json();
-                        if (res.ok) {
-                          showInlineMessage(resumeContainer, 'Resume saved successfully!', 'success');
-                          // Update the current resume div
-                          loadCurrentResume();
-                        } else {
-                          showInlineMessage(resumeContainer, `Failed to save resume: ${data.message || res.status}`, 'error');
-                        }
-                    } catch (err) {
-                      console.error(err);
-                      showInlineMessage(resumeContainer, 'Network error while saving resume.', 'error');
-                    }
-                });
-
-                // Pre-fill textarea with existing resume
-                try {
-                    const res = await fetch(`${API_BASE}/user/resume`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const data = await res.json();
-                    textarea.value = data.resume || '';
-                } catch (err) {
-                    console.error('Failed to load existing resume:', err);
-                }
+            if (res.ok) {
+              showInlineMessage(resumeContainer, 'Resume saved successfully!', 'success');
+              // Update the current resume div
+              loadCurrentResume();
+            } else {
+              showInlineMessage(resumeContainer, `Failed to save resume: ${data.message || res.status}`, 'error');
             }
+          } catch (err) {
+            console.error(err);
+            showInlineMessage(resumeContainer, 'Network error while saving resume.', 'error');
+          }
+        });
 
-            resumeContainer.style.display = 'block';
-            addResumeBtn.textContent = 'Hide Resume';
-            isVisible = true;
-
-        } else {
-            resumeContainer.style.display = 'none';
-            addResumeBtn.textContent = 'Add new Resume';
-            isVisible = false;
+        // Pre-fill textarea with existing resume
+        try {
+          const res = await fetch(`${API_BASE}/user/resume`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          textarea.value = data.resume || '';
+        } catch (err) {
+          console.error('Failed to load existing resume:', err);
         }
-    });
+      }
+
+      resumeContainer.style.display = 'block';
+      addResumeBtn.textContent = 'Hide Resume';
+      isVisible = true;
+
+    } else {
+      resumeContainer.style.display = 'none';
+      addResumeBtn.textContent = 'Add new Resume';
+      isVisible = false;
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', setupResumeDropdown);
 
+document.addEventListener("DOMContentLoaded", () => {
+  const adminLink = document.getElementById("adminLink");
+  const token = localStorage.getItem("token");
+  const isAdmin = localStorage.getItem("isAdmin");
+
+
+  if (adminLink && isAdmin === "true") {
+    adminLink.style.display = "inline-block";
+  }
+});
+
+
 function improveResume() {
-    const improveBtn = document.getElementById('improveResumeBtn');
-    const improvedResumeContainer = document.getElementById('improvedResumeContainer');
+  const improveBtn = document.getElementById('improveResumeBtn');
+  const improvedResumeContainer = document.getElementById('improvedResumeContainer');
 
-    if (!improveBtn || !improvedResumeContainer) return;
+  if (!improveBtn || !improvedResumeContainer) return;
 
-    improveBtn.addEventListener('click', async () => {
-      console.log("Improve Resume button clicked");
-        const currentResumeContainer = document.getElementById('currentResumeContainer');
-        const resumeText = currentResumeContainer.textContent.trim();
-        if (!resumeText || resumeText === 'No resume uploaded yet.' || resumeText === 'Error loading resume') {
-          showInlineMessage(improvedResumeContainer, 'Please upload your resume first.', 'error');
-          return;
-        }
-        improvedResumeContainer.textContent = 'Improving your resume, please wait...';
+  improveBtn.addEventListener('click', async () => {
+    console.log("Improve Resume button clicked");
+    const currentResumeContainer = document.getElementById('currentResumeContainer');
+    const resumeText = currentResumeContainer.textContent.trim();
+    if (!resumeText || resumeText === 'No resume uploaded yet.' || resumeText === 'Error loading resume') {
+      showInlineMessage(improvedResumeContainer, 'Please upload your resume first.', 'error');
+      return;
+    }
+    improvedResumeContainer.textContent = 'Improving your resume, please wait...';
 
-        try {
-          // Send resume to server endpoint which proxies to the AI
-          const token = localStorage.getItem('token');
-          const res = await fetch(`${API_BASE}/ai/resume/improve`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ resume: resumeText })
-          });
+    try {
+      // Send resume to server endpoint which proxies to the AI
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/ai/resume/improve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ resume: resumeText })
+      });
 
-          if (!res.ok) {
-            const errJson = await res.json().catch(() => ({}));
-            improvedResumeContainer.textContent = `Error: ${res.status} ${errJson.message || res.statusText}`;
-            return;
-          }
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        improvedResumeContainer.textContent = `Error: ${res.status} ${errJson.message || res.statusText}`;
+        return;
+      }
 
-          const data = await res.json();
-          const improvedContent = data?.ai?.choices?.[0]?.message?.content || data?.ai?.message || 'No response received.';
+      const data = await res.json();
+      const improvedContent = data?.ai?.choices?.[0]?.message?.content || data?.ai?.message || 'No response received.';
 
-            // Side-by-side view: AI recommendations (left) and editable current resume (right)
-            improvedResumeContainer.innerHTML = `
+      // Side-by-side view: AI recommendations (left) and editable current resume (right)
+      improvedResumeContainer.innerHTML = `
               <div style="display:flex; gap:16px; align-items:flex-start;">
                 <div style="flex:1;">
                   <h3>AI Recommendations</h3>
@@ -460,67 +824,67 @@ function improveResume() {
               <div style="margin-top:8px;"><button id="discardImprovementsBtn">Discard</button></div>
             `;
 
-            // Fill editor with current resume text (loaded from page)
-            const currentResumeContainerElem = document.getElementById('currentResumeContainer');
-            const editor = document.getElementById('resumeEditor');
-            const discardBtn = document.getElementById('discardImprovementsBtn');
-            const saveBtn = document.getElementById('saveResumeBtn');
-            const cancelBtn = document.getElementById('cancelResumeBtn');
+      // Fill editor with current resume text (loaded from page)
+      const currentResumeContainerElem = document.getElementById('currentResumeContainer');
+      const editor = document.getElementById('resumeEditor');
+      const discardBtn = document.getElementById('discardImprovementsBtn');
+      const saveBtn = document.getElementById('saveResumeBtn');
+      const cancelBtn = document.getElementById('cancelResumeBtn');
 
-            if (editor) {
-              // prefer the visible current resume content if present, otherwise empty
-              const currentText = (currentResumeContainerElem && currentResumeContainerElem.textContent && currentResumeContainerElem.textContent.trim() !== '')
-                ? currentResumeContainerElem.textContent
-                : '';
-              editor.value = currentText;
-            }
+      if (editor) {
+        // prefer the visible current resume content if present, otherwise empty
+        const currentText = (currentResumeContainerElem && currentResumeContainerElem.textContent && currentResumeContainerElem.textContent.trim() !== '')
+          ? currentResumeContainerElem.textContent
+          : '';
+        editor.value = currentText;
+      }
 
-            if (discardBtn) {
-              discardBtn.addEventListener('click', () => { improvedResumeContainer.innerHTML = ''; });
-            }
+      if (discardBtn) {
+        discardBtn.addEventListener('click', () => { improvedResumeContainer.innerHTML = ''; });
+      }
 
-            // POST helper
-            async function postResume(text, button) {
-              const token = localStorage.getItem('token');
-              if (!token) { showInlineMessage(improvedResumeContainerElem, 'You must be logged in to save your resume.', 'error'); return; }
-              if (button) { button.disabled = true; button.textContent = 'Saving...'; }
-              try {
-                const res2 = await fetch(`${API_BASE}/user/resume`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                  body: JSON.stringify({ resume: text })
-                });
-                const json = await res2.json().catch(() => ({}));
-                if (res2.ok) {
-                  if (currentResumeContainerElem) {
-                    currentResumeContainerElem.textContent = text;
-                    currentResumeContainerElem.style.whiteSpace = 'pre-wrap';
-                  }
-                  showInlineMessage(improvedResumeContainerElem, 'Resume saved successfully.', 'success');
-                } else {
-                  showInlineMessage(improvedResumeContainerElem, `Failed to save resume: ${json.message || res2.status}`, 'error');
-                  if (button) { button.disabled = false; button.textContent = 'Save'; }
-                }
-              } catch (err) {
-                showInlineMessage(improvedResumeContainerElem, `Network error: ${err.message}`, 'error');
-                if (button) { button.disabled = false; button.textContent = 'Save'; }
-              }
+      // POST helper
+      async function postResume(text, button) {
+        const token = localStorage.getItem('token');
+        if (!token) { showInlineMessage(improvedResumeContainerElem, 'You must be logged in to save your resume.', 'error'); return; }
+        if (button) { button.disabled = true; button.textContent = 'Saving...'; }
+        try {
+          const res2 = await fetch(`${API_BASE}/user/resume`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ resume: text })
+          });
+          const json = await res2.json().catch(() => ({}));
+          if (res2.ok) {
+            if (currentResumeContainerElem) {
+              currentResumeContainerElem.textContent = text;
+              currentResumeContainerElem.style.whiteSpace = 'pre-wrap';
             }
-
-            if (saveBtn && editor) {
-              saveBtn.addEventListener('click', async () => { await postResume(editor.value, saveBtn); });
-            }
-
-            if (cancelBtn) {
-              cancelBtn.addEventListener('click', () => {
-                // reset editor to the current shown resume
-                if (currentResumeContainerElem && editor) editor.value = currentResumeContainerElem.textContent || '';
-              });
-            }
+            showInlineMessage(improvedResumeContainerElem, 'Resume saved successfully.', 'success');
+          } else {
+            showInlineMessage(improvedResumeContainerElem, `Failed to save resume: ${json.message || res2.status}`, 'error');
+            if (button) { button.disabled = false; button.textContent = 'Save'; }
+          }
         } catch (err) {
-            improvedResumeContainer.textContent = `Request failed: ${err.message}`;
+          showInlineMessage(improvedResumeContainerElem, `Network error: ${err.message}`, 'error');
+          if (button) { button.disabled = false; button.textContent = 'Save'; }
         }
-    });
+      }
+
+      if (saveBtn && editor) {
+        saveBtn.addEventListener('click', async () => { await postResume(editor.value, saveBtn); });
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          // reset editor to the current shown resume
+          if (currentResumeContainerElem && editor) editor.value = currentResumeContainerElem.textContent || '';
+        });
+      }
+    } catch (err) {
+      improvedResumeContainer.textContent = `Request failed: ${err.message}`;
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', improveResume);
@@ -653,84 +1017,84 @@ async function setupJobSearchPage() {
   if (!btn || !output) return;
 
   btn.addEventListener('click', async () => {
-  output.textContent = "Searching jobs...";
+    output.textContent = "Searching jobs...";
 
-  const token = localStorage.getItem('token');
-  if (!token) {
-    output.textContent = "Please log in first.";
-    return;
-  }
-
-  try {
-    // 1. Get user skills dynamically
-    const skillRes = await fetch(`${API_BASE}/user/skills`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const skillData = await skillRes.json();
-    const userSkills = Array.isArray(skillData.skills) ? skillData.skills : [];
-
-    if (userSkills.length === 0) {
-      output.textContent = "You have no skills saved. Add skills first!";
+    const token = localStorage.getItem('token');
+    if (!token) {
+      output.textContent = "Please log in first.";
       return;
     }
 
-    // 2. Call job search API using real user skills
-    const res = await fetch(`${API_BASE}/jobs/search_user`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        job_wanted: "Software Engineer",
-        location: "Vancouver",
-        skills: userSkills,
-        limit: 5
-      })
-    });
+    try {
+      // 1. Get user skills dynamically
+      const skillRes = await fetch(`${API_BASE}/user/skills`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    if (!res.ok) {
-      output.textContent = `Error: ${res.status}`;
-      return;
-    }
+      const skillData = await skillRes.json();
+      const userSkills = Array.isArray(skillData.skills) ? skillData.skills : [];
 
-    const data = await res.json();
+      if (userSkills.length === 0) {
+        output.textContent = "You have no skills saved. Add skills first!";
+        return;
+      }
 
-    if (data.error) {
-      output.textContent = `Server Error: ${data.error}`;
-      return;
-    }
+      // 2. Call job search API using real user skills
+      const res = await fetch(`${API_BASE}/jobs/search_user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          job_wanted: "Software Engineer",
+          location: "Vancouver",
+          skills: userSkills,
+          limit: 5
+        })
+      });
 
-    if (!data.jobs || data.jobs.length === 0) {
-      output.textContent = "No matching jobs found.";
-      return;
-    }
+      if (!res.ok) {
+        output.textContent = `Error: ${res.status}`;
+        return;
+      }
 
-    // 3. Render jobs
-    output.innerHTML = "";
+      const data = await res.json();
 
-    data.jobs.forEach(job => {
-      const div = document.createElement("div");
-      div.style.border = "1px solid #ccc";
-      div.style.padding = "10px";
-      div.style.marginBottom = "10px";
-      div.style.background = "#f9f9f9";
+      if (data.error) {
+        output.textContent = `Server Error: ${data.error}`;
+        return;
+      }
 
-      div.innerHTML = `
+      if (!data.jobs || data.jobs.length === 0) {
+        output.textContent = "No matching jobs found.";
+        return;
+      }
+
+      // 3. Render jobs
+      output.innerHTML = "";
+
+      data.jobs.forEach(job => {
+        const div = document.createElement("div");
+        div.style.border = "1px solid #ccc";
+        div.style.padding = "10px";
+        div.style.marginBottom = "10px";
+        div.style.background = "#f9f9f9";
+
+        div.innerHTML = `
         <h3><a href="${job.url}" target="_blank">${job.title}</a></h3>
         <p><strong>Company:</strong> ${job.company}</p>
         <p><strong>Location:</strong> ${job.location || "N/A"}</p>
         <p><strong>AI Summary:</strong><br>${job.ai_summary || "No summary"}</p>
       `;
 
-      output.appendChild(div);
-    });
+        output.appendChild(div);
+      });
 
-  } catch (err) {
-    output.textContent = `Network error: ${err.message}`;
-  }
-});
+    } catch (err) {
+      output.textContent = `Network error: ${err.message}`;
+    }
+  });
 }
 //   btn.addEventListener('click', async () => {
 //     output.textContent = "Searching jobs...";
@@ -800,3 +1164,6 @@ async function setupJobSearchPage() {
 // }
 
 document.addEventListener('DOMContentLoaded', setupJobSearchPage);
+
+
+

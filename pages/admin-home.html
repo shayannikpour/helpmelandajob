@@ -1,31 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HelpMeLandAJob</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
 <body>
+
     <header>
         <a href="home.html">
-                <h1>HelpMeLandAJob</h1>
+            <h1>HelpMeLandAJob</h1>
         </a>
-                
     </header>
+
     <nav>
         <ul>
             <li><a href="resume.html">Your Resume</a></li>
             <li><a href="skills.html">Skills</a></li>
             <li><a href="jobs.html">Job Recommendations</a></li>
             <li><a href="account.html">Account</a></li>
+            <li><a href="leetcode.html">LeetCode alike Questions</a></li>
+            <li><a id="adminLink" href="admin-home.html" style="display:none;">Admin</a></li>
         </ul>
     </nav>
 
     <h1>Welcome to your Admin Page, <span id="usernameDisplay"></span>!</h1>
+
+    <h2>All Users</h2>
+
+    <div id="adminError" class="error-message" style="display:none;"></div>
+
+    <table id="usersTable" class="admin-table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>API Calls</th>
+                <th>Admin</th>
+                <th>Actions</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+
+
+    <h2>API Endpoints Usage</h2>
+    
+    <div id="endpointsError" class="error-message" style="display:none;"></div>
+    
+    <table id="endpointsTable" class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Requests</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+
     <footer>
         <p>&copy; 2025 HelpMeLandAJob. All rights reserved.</p>
     </footer>
-        <script src="../scripts/client.js"></script>
+
+    <script src="../scripts/client.js"></script>
+
+</body>
 
 </html>

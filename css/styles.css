@@ -209,3 +209,102 @@ nav a:hover {
                     border: none;
                     margin-top: 10px;
                 }
+
+
+/* Admin Table */
+.admin-table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    font-size: 16px;
+}
+
+.admin-table thead {
+    background: #3f51b5;
+    color: #fff;
+    text-align: left;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+    background: #f5f7ff;
+    transition: 0.2s;
+}
+
+/* Username color */
+.admin-table td:first-child {
+    font-weight: 600;
+    color: #333;
+}
+
+/* API call count style */
+.admin-table td:last-child {
+    font-size: 15px;
+    color: #444;
+}
+
+/* Error message box */
+.error-message {
+    width: 90%;
+    margin: 10px auto;
+    padding: 12px;
+    background: #ffd6d6;
+    color: #9b0000;
+    border-left: 4px solid #c30000;
+    border-radius: 6px;
+    display: none;
+}
+
+/* Page headings */
+h1,
+h2 {
+    text-align: center;
+    margin-top: 25px;
+    color: #333;
+}
+
+
+.delete-btn {
+    background: #e53935;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.delete-btn:hover {
+    background: #b71c1c;
+    transition: 0.2s;
+}
+
+
+.admin-btn {
+    background: #1976d2;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.admin-btn:hover {
+    background: #0d47a1;
+    transition: 0.2s;
+}
