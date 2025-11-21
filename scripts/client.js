@@ -328,6 +328,22 @@ Rules:
     });
   }
 
+  window.toggleAnswer = function (id, button) {
+    const answer = document.getElementById(id);
+    if (!answer) return;
+
+    // Toggle the "revealed" class
+    answer.classList.toggle("revealed");
+
+    // Update button text
+    if (answer.classList.contains("revealed")) {
+      button.textContent = "Hide Answer";
+    } else {
+      button.textContent = "Reveal Answer";
+    }
+  };
+
+
   function formatText(text) {
     if (!text) return "";
     // Preserve newlines from the model

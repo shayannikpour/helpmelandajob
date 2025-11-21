@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HelpMeLandAJob</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
 <body>
     <header>
         <a href="home.html">
-                <h1>HelpMeLandAJob</h1>
+            <h1>HelpMeLandAJob</h1>
         </a>
-                
+
     </header>
     <nav>
         <ul>
-             <li><a href="resume.html">Your Resume</a></li>
+            <li><a href="resume.html">Your Resume</a></li>
             <li><a href="skills.html">Skills</a></li>
             <li><a href="jobs.html">Job Recommendations</a></li>
             <li><a href="leetcode.html">LeetCode Type Questions</a></li>
             <li><a href="account.html">Account</a></li>
-            <li><a href="leetcode.html">LeetCode alike Questions</a></li>
-            <li><a id="adminLink" href="admin-home.html" style="display:none;">Admin</a></li>
         </ul>
+
+        <a id="adminLink" href="admin-home.html" class="admin-btn" style="display:none;">Admin</a>
+
     </nav>
 
     <h1>Welcome, <span id="usernameDisplay"></span>!</h1>
 
     <p>Api calls: <span id="apiCallsDisplay">0/20</span></p>
-   
+
     <footer>
         <p>&copy; 2025 HelpMeLandAJob. All rights reserved.</p>
     </footer>
-        <script src="../scripts/client.js"></script>
+    <script src="../scripts/client.js"></script>
 
 </html>
