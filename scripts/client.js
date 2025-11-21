@@ -50,6 +50,7 @@ async function handleLogin(e) {
   try {
     const res = await fetch(`${API_BASE}/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
