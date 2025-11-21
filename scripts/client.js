@@ -396,6 +396,7 @@ async function handleLogin(e) {
   try {
     const res = await fetch(`${API_BASE}/login`, {
       method: 'POST',
+      // credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
@@ -920,20 +921,70 @@ async function fetchAndRenderSkills() {
 
     // Render skills as articles similar to the original markup
     container.innerHTML = '';
-    skills.forEach(s => {
+
+    // skills.forEach(s => {
+    //   const article = document.createElement('article');
+    //   article.className = 'skill';
+    //   const h2 = document.createElement('h2');
+    //   h2.textContent = s;
+    //   article.appendChild(h2);
+    //   container.appendChild(article);
+    // });
+
+    skills.forEach(skill => {
       const article = document.createElement('article');
       article.className = 'skill';
+
       const h2 = document.createElement('h2');
-      h2.textContent = s;
+      h2.textContent = skill;
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = "Delete";
+      delBtn.style.marginLeft = "12px";
+      delBtn.onclick = () => deleteSkill(skill);
+
       article.appendChild(h2);
+      article.appendChild(delBtn);
       container.appendChild(article);
     });
+
 
   } catch (err) {
     console.error('Failed to load skills:', err);
     container.innerHTML = '<p>Error loading skills</p>';
   }
 }
+
+async function deleteSkill(skill) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    showGlobalMessage("You are not logged in.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/user/skills`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ skill })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showGlobalMessage("Skill deleted.", "success");
+      fetchAndRenderSkills(); // refresh skills list
+    } else {
+      showGlobalMessage(data.message || "Failed to delete skill", "error");
+    }
+  } catch (err) {
+    showGlobalMessage("Network error: " + err.message, "error");
+  }
+}
+
 
 function setupSkillsPage() {
   const addBtn = document.getElementById('addSkillBtn');
