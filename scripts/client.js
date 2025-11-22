@@ -409,6 +409,14 @@ async function handleLogin(e) {
   const password = document.getElementById('password').value;
   const status = document.getElementById('status');
 
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(username)) {
+    status.textContent = "Invalid email format.";
+    status.style.color = "red";
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/login`, {
       method: 'POST',
@@ -450,6 +458,14 @@ async function handleRegister(e) {
   const password = document.getElementById('password').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
   const status = document.getElementById('status');
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(username)) {
+    status.textContent = "Please enter a valid email format.";
+    status.style.color = 'red';
+    return;
+  }
+
 
   // Check if passwords match
   if (password !== confirmPassword) {
