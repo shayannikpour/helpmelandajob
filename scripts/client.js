@@ -37,9 +37,9 @@ async function loadAdminPage() {
             <button class="delete-btn" onclick="deleteUser(${u.id})">
                 Delete
             </button>
-
-            <button class="admin-btn" onclick="toggleAdmin(${u.id}, ${u.isadmin})">
-                ${u.isadmin ? "Remove Admin" : "Make Admin"}
+            
+            <button class="delete-btn" onclick="toggleAdmin(${u.id}, ${u.isadmin})">
+                Change status
             </button>
         </td>
     `;
@@ -494,7 +494,6 @@ async function verifyLogin() {
   }
 
   try {
-    console.log("Hello")
     const res = await fetch(`${API_BASE}/verify-token`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -502,7 +501,11 @@ async function verifyLogin() {
 
     if (res.ok) {
       const usernameElem = document.getElementById('usernameDisplay');
-      if (usernameElem) usernameElem.textContent = data.username;
+      if (usernameElem) {
+        const cleanName = data.username.split('@')[0];
+        usernameElem.textContent = cleanName;
+      }
+
 
       const isAdminStored = localStorage.getItem('isAdmin') === '1';
       if (isAdminStored && !window.location.href.includes('admin-home.html')) {
