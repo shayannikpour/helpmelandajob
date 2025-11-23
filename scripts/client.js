@@ -1,5 +1,6 @@
 const API_BASE = 'https://helpmelandajob-server.onrender.com';
-import { STRINGS } from '../lang/en/user.js'
+
+
 async function loadAdminPage() {
   const token = localStorage.getItem("token");
   const username = localStorage.getItem("username");
@@ -20,7 +21,7 @@ async function loadAdminPage() {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || STRINGS.FAILED_LOAD_USERS);
+    if (!res.ok) throw new Error(data.message || "Failed to load users");
 
     const tbody = usersTable.querySelector("tbody");
     tbody.innerHTML = "";
@@ -31,14 +32,14 @@ async function loadAdminPage() {
       row.innerHTML = `
         <td>${u.username}</td>
         <td>${u.api_calls}</td>
-        <td>${u.isadmin ? STRINGS.CHECKMARK : STRINGS.ERROR_MARK}</td>
+        <td>${u.isadmin ? "✔️" : "❌"}</td>
         <td>
             <button class="delete-btn" onclick="deleteUser(${u.id})">
-                ${STRINGS.DELETE}
+                Delete
             </button>
-
-            <button class="admin-btn" onclick="toggleAdmin(${u.id}, ${u.isadmin})">
-                ${u.isadmin ? STRINGS.REMOVE_ADMIN_LABEL : STRINGS.MAKE_ADMIN_LABEL}
+            
+            <button class="delete-btn" onclick="toggleAdmin(${u.id}, ${u.isadmin})">
+                Change status
             </button>
         </td>
     `;
@@ -56,7 +57,7 @@ async function loadAdminPage() {
 
 
 window.deleteUser = async function (id) {
-  if (!confirm(STRINGS.CONFIRM_DELETE_USER)) {
+  if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) {
     return;
   }
 
@@ -76,7 +77,7 @@ window.deleteUser = async function (id) {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.message || STRINGS.FAILED_DELETE_USER);
+      alert(data.message || "Failed to delete user");
       return;
     }
 
@@ -85,7 +86,7 @@ window.deleteUser = async function (id) {
 
   } catch (err) {
     console.error("Delete user error:", err);
-    alert(STRINGS.SERVER_DELETE_ERROR);
+    alert("Server error while deleting user.");
   }
 };
 
@@ -97,8 +98,8 @@ window.toggleAdmin = async function (id, currentStatus) {
   const newStatus = !currentStatus;
 
   const confirmMsg = newStatus
-    ? STRINGS.GRANT_ADMIN
-    : STRINGS.REMOVE_ADMIN;
+    ? "Grant admin access to this user?"
+    : "Remove admin access from this user?";
 
   if (!confirm(confirmMsg)) return;
 
@@ -118,7 +119,7 @@ window.toggleAdmin = async function (id, currentStatus) {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.message || STRINGS.FAILED_UPDATE_ADMIN);
+      alert(data.message || "Failed to update admin status");
       return;
     }
 
@@ -126,7 +127,7 @@ window.toggleAdmin = async function (id, currentStatus) {
 
   } catch (err) {
     console.error("Admin toggle error:", err);
-    alert(STRINGS.SERVER_ADMIN_ERROR);
+    alert("Server error while updating admin status.");
   }
 };
 
@@ -151,7 +152,7 @@ async function loadEndpoints() {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || STRINGS.FAILED_LOAD_ENDPOINTS);
+    if (!res.ok) throw new Error(data.message || "Failed to load endpoints");
 
     const tbody = table.querySelector("tbody");
     tbody.innerHTML = "";
@@ -201,7 +202,7 @@ function getLeetCodeQuestions() {
     if (!token) {
       loadingDiv.style.display = "none";
       submitBtn.disabled = false;
-      errorDiv.textContent = STRINGS.MUST_LOGIN_FEATURE;
+      errorDiv.textContent = "You must be logged in to use this feature.";
       errorDiv.style.display = "block";
       return;
     }
@@ -209,12 +210,12 @@ function getLeetCodeQuestions() {
     if (!lang || !diff) {
       loadingDiv.style.display = "none";
       submitBtn.disabled = false;
-      errorDiv.textContent = STRINGS.SELECT_LANGUAGE_DIFFICULTY;
+      errorDiv.textContent = "Please select both language and difficulty.";
       errorDiv.style.display = "block";
       return;
     }
 
-    // Drop JSON, use QUESTION/ANSWER markers instead – much more robust
+    
     const prompt = `
 You are generating LeetCode-style coding interview questions.
 
@@ -246,7 +247,7 @@ Rules:
 
       if (!response.ok) {
         const errText = await response.text().catch(() => "");
-        throw new Error(`Server error (${response.status}): ${errText || STRINGS.UNABLE_GET_QUESTION}`);
+        throw new Error(`Server error (${response.status}): ${errText || "Unable to get question"}`);
       }
 
       const data = await response.json();
@@ -254,20 +255,20 @@ Rules:
       console.log("AI RAW:", raw);
 
       if (!raw || typeof raw !== "string") {
-        throw new Error(EMPTY_AI_RESPONSE);
+        throw new Error("Empty or invalid AI response.");
       }
 
       const qa = parseQuestionAnswer(raw);
 
       if (!qa || !qa.question) {
-        throw new Error(STRINGS.AI_BAD_FORMAT);
+        throw new Error("AI response was not in the expected format. Please try again.");
       }
 
       displayQuestions([qa]);
 
     } catch (err) {
       console.error(err);
-      errorDiv.textContent = err.message || STRINGS.SOMETHING_WENT_WRONG;
+      errorDiv.textContent = err.message || "Something went wrong.";
       errorDiv.style.display = "block";
     } finally {
       loadingDiv.style.display = "none";
@@ -277,7 +278,7 @@ Rules:
 
 
 
-  // Parse "QUESTION: ... ANSWER: ..." format
+  
   function parseQuestionAnswer(raw) {
     const parts = raw.split(/ANSWER:/i);
     if (parts.length < 2) {
@@ -287,14 +288,14 @@ Rules:
     const questionPart = parts[0].replace(/QUESTION:/i, "").trim();
     const answerPart = parts.slice(1).join("ANSWER:").trim(); // in case "ANSWER:" appears again
 
-    // Basic sanity checks
+    
     if (!questionPart || questionPart.length < 10) {
       return null;
     }
 
     return {
       question: questionPart,
-      answer: answerPart || STRINGS.NO_ANSWER_PROVIDED
+      answer: answerPart || "No answer provided."
     };
   }
 
@@ -303,7 +304,7 @@ Rules:
     container.innerHTML = "";
 
     if (!Array.isArray(questions) || questions.length === 0) {
-      container.innerHTML = `<div class="error-message">${STRINGS.NO_QUESTIONS}</div>`;
+      container.innerHTML = '<div class="error-message">No questions returned.</div>';
       return;
     }
 
@@ -313,13 +314,13 @@ Rules:
 
       const id = `answer-${index}`;
 
-      const questionText = q.question || STRINGS.NO_QUESTION_TEXT;
-      const answerText = q.answer || STRINGS.NO_ANSWER_TEXT;
+      const questionText = q.question || "No question text provided.";
+      const answerText = q.answer || "No answer provided.";
 
       card.innerHTML = `
-                <h3>${STRINGS.QUESTION_LABEL} ${index + 1}</h3>
+                <h3>Question ${index + 1}</h3>
                 <div class="question-content">${formatText(questionText)}</div>
-                <button class="reveal-btn" onclick="toggleAnswer('${id}', this)">${STRINGS.REVEAL_ANSWER}</button>
+                <button class="reveal-btn" onclick="toggleAnswer('${id}', this)">Reveal Answer</button>
                 <div id="${id}" class="answer-content">${formatText(answerText)}</div>
             `;
 
@@ -331,28 +332,28 @@ Rules:
     const answer = document.getElementById(id);
     if (!answer) return;
 
-    // Toggle the "revealed" class
+    
     answer.classList.toggle("revealed");
 
-    // Update button text
+    
     if (answer.classList.contains("revealed")) {
-      button.textContent = STRINGS.HIDE_ANSWER;
+      button.textContent = "Hide Answer";
     } else {
-      button.textContent = STRINGS.REVEAL_ANSWER;
+      button.textContent = "Reveal Answer";
     }
   };
 
 
   function formatText(text) {
     if (!text) return "";
-    // Preserve newlines from the model
+    
     return text.replace(/\r\n/g, "\n").replace(/\n/g, "<br>");
   }
 
   window.toggleAnswer = function (id, btn) {
     const box = document.getElementById(id);
     const open = box.classList.toggle("revealed");
-    btn.textContent = open ? STRINGS.HIDE_ANSWER : STRINGS.REVEAL_ANSWER;
+    btn.textContent = open ? "Hide Answer" : "Reveal Answer";
   };
 
 }
@@ -361,7 +362,7 @@ document.addEventListener('DOMContentLoaded', getLeetCodeQuestions);
 
 
 
-// Simple UI message helpers to replace alert()
+
 function showGlobalMessage(msg, type = 'error') {
   let g = document.getElementById('globalMessage');
   if (!g) {
@@ -385,7 +386,7 @@ function showGlobalMessage(msg, type = 'error') {
 
 function showInlineMessage(targetElem, msg, type = 'error') {
   if (!targetElem) { showGlobalMessage(msg, type); return; }
-  // place message directly after the target element
+  
   let parent = targetElem.parentNode || document.body;
   let existing = parent.querySelector('.inline-message');
   if (!existing) {
@@ -408,6 +409,7 @@ async function handleLogin(e) {
   const password = document.getElementById('password').value;
   const status = document.getElementById('status');
 
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(username)) {
     status.textContent = "Invalid email format.";
@@ -418,7 +420,7 @@ async function handleLogin(e) {
   try {
     const res = await fetch(`${API_BASE}/login`, {
       method: 'POST',
-      // credentials: 'include',
+      
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
@@ -427,7 +429,7 @@ async function handleLogin(e) {
 
     if (res.ok && data.token) {
       localStorage.setItem('token', data.token);
-      localStorage.setItem('isAdmin', data.isAdmin);  // <-- FIXED
+      localStorage.setItem('isAdmin', data.isAdmin);  
 
       if (data.isAdmin) {
         window.location.href = 'admin-home.html';
@@ -435,12 +437,12 @@ async function handleLogin(e) {
         window.location.href = 'home.html';
       }
     } else {
-      status.textContent = data.message || STRINGS.LOGIN_FAILED;
+      status.textContent = data.message || 'Login failed';
       status.style.color = 'red';
     }
   } catch (err) {
     console.error('Login error:', err);
-    status.textContent = STRINGS.NETWORK_ERROR;
+    status.textContent = 'Network error';
     status.style.color = 'red';
   }
 }
@@ -464,9 +466,10 @@ async function handleRegister(e) {
     return;
   }
 
-  // Check if passwords match
+
+  
   if (password !== confirmPassword) {
-    status.textContent = STRINGS.PASSWORDS_NO_MATCH;
+    status.textContent = "Passwords do not match";
     status.style.color = 'red';
     return;
   }
@@ -483,7 +486,7 @@ async function handleRegister(e) {
     status.textContent = data.message;
     status.style.color = 'green';
   } else {
-    status.textContent = data.message || STRINGS.REGISTRATION_FAILED;
+    status.textContent = data.message || 'Registration failed';
     status.style.color = 'red';
   }
 }
@@ -507,7 +510,6 @@ async function verifyLogin() {
   }
 
   try {
-    console.log("Hello")
     const res = await fetch(`${API_BASE}/verify-token`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -520,11 +522,12 @@ async function verifyLogin() {
         usernameElem.textContent = cleanName;
       }
 
+
       const isAdminStored = localStorage.getItem('isAdmin') === '1';
       if (isAdminStored && !window.location.href.includes('admin-home.html')) {
         window.location.href = 'admin-home.html';
       }
-      // update API calls display (if present on the page)
+      
       fetchAndShowApiCalls().catch(err => console.error('Failed to load api calls:', err));
     } else {
       localStorage.removeItem('token');
@@ -539,7 +542,7 @@ async function verifyLogin() {
   }
 }
 
-// Fetch the user's api_calls and show "{api_calls}/20" in #apiCallsDisplay (if present)
+
 async function fetchAndShowApiCalls() {
   const el = document.getElementById('apiCallsDisplay');
   if (!el) return;
@@ -568,7 +571,7 @@ async function fetchAndShowApiCalls() {
 }
 
 document.addEventListener('DOMContentLoaded', verifyLogin);
-// Also attempt to populate the api call counter on page load (will use token if present)
+
 document.addEventListener('DOMContentLoaded', () => { fetchAndShowApiCalls().catch(() => { }); });
 
 function logout() {
@@ -590,11 +593,11 @@ document.addEventListener('DOMContentLoaded', () => {
     sendBtn.addEventListener('click', async () => {
       const message = userInput.value.trim();
       if (!message) {
-        responseContainer.textContent = STRINGS.ENTER_MESSAGE;
+        responseContainer.textContent = 'Please enter a message.';
         return;
       }
 
-      responseContainer.textContent = STRINGS.THINKING;
+      responseContainer.textContent = 'Thinking...';
 
       try {
         const res = await fetch('https://teamv5.duckdns.org/v1/chat/completions', {
@@ -612,11 +615,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const data = await res.json();
 
-        const content = data?.choices?.[0]?.message?.content || STRINGS.NO_RESPONSE_RECEIVED;
+        const content = data?.choices?.[0]?.message?.content || 'No response received.';
         responseContainer.innerHTML = `<strong>Assistant:</strong><br>${content.replace(/\n/g, '<br>')}`;
 
       } catch (err) {
-        responseContainer.textContent = `${STRINGS.REQUEST_FAILED_PREFIX}: ${err.message}`;
+        responseContainer.textContent = `Request failed: ${err.message}`;
       }
     });
   }
@@ -624,7 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (button || outputDiv) {
     button.addEventListener('click', async () => {
-      outputDiv.textContent = STRINGS.LOADING;
+      outputDiv.textContent = 'Loading...';
 
       try {
         const res = await fetch('https://167.172.116.168:8000/jobs/search?keyword=programming&location=Vancouver%2C%20BC&limit=5');
@@ -641,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!data.jobs || data.jobs.length === 0) {
-          outputDiv.textContent = STRINGS.NO_JOBS_FOUND;
+          outputDiv.textContent = 'No jobs found.';
           return;
         }
 
@@ -667,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
       } catch (err) {
-        outputDiv.textContent = `${STRINGS.NETWORK_ERROR}: ${err.message}`;
+        outputDiv.textContent = `Network error: ${err.message}`;
       }
     });
   }
@@ -694,15 +697,15 @@ function setupResumeDropdown() {
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  // Load existing resume and display it in the div
+  
   async function loadCurrentResume() {
     try {
       const res = await fetch(`${API_BASE}/user/resume`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      currentResumeContainer.textContent = data.resume || STRINGS.NO_RESUME;
-      currentResumeContainer.style.whiteSpace = 'pre-wrap'; // preserve line breaks
+      currentResumeContainer.textContent = data.resume || 'No resume uploaded yet.';
+      currentResumeContainer.style.whiteSpace = 'pre-wrap'; 
       currentResumeContainer.style.border = '1px solid #ccc';
       currentResumeContainer.style.padding = '10px';
       currentResumeContainer.style.marginBottom = '10px';
@@ -710,7 +713,7 @@ function setupResumeDropdown() {
       currentResumeContainer.style.minHeight = '50px';
     } catch (err) {
       console.error('Failed to load resume:', err);
-      currentResumeContainer.textContent = STRINGS.ERROR_LOADING_RESUME;
+      currentResumeContainer.textContent = 'Error loading resume';
     }
   }
 
@@ -722,7 +725,7 @@ function setupResumeDropdown() {
       if (!document.getElementById('resumeText')) {
         const textarea = document.createElement('textarea');
         textarea.id = 'resumeText';
-        textarea.placeholder = STRINGS.PASTE_RESUME_PLACEHOLDER;
+        textarea.placeholder = 'Paste your resume text here...';
         textarea.style.width = '100%';
         textarea.style.height = '300px';
         textarea.style.padding = '10px';
@@ -732,14 +735,14 @@ function setupResumeDropdown() {
         // Add a save button
         const saveBtn = document.createElement('button');
         saveBtn.id = 'saveResumeBtn';
-        saveBtn.textContent = STRINGS.SAVE_RESUME;
+        saveBtn.textContent = 'Save Resume';
         saveBtn.style.marginTop = '10px';
         resumeContainer.appendChild(saveBtn);
 
         saveBtn.addEventListener('click', async () => {
           const resumeText = textarea.value.trim();
           if (!resumeText) {
-            showInlineMessage(textarea, STRINGS.PASTE_RESUME_FIRST, 'error');
+            showInlineMessage(textarea, 'Please paste your resume first.', 'error');
             return;
           }
 
@@ -754,19 +757,19 @@ function setupResumeDropdown() {
             });
             const data = await res.json();
             if (res.ok) {
-              showInlineMessage(resumeContainer, STRINGS.RESUME_SAVED_SUCCESS, 'success');
-              // Update the current resume div
+              showInlineMessage(resumeContainer, 'Resume saved successfully!', 'success');
+              
               loadCurrentResume();
             } else {
-              showInlineMessage(resumeContainer, `${STRINGS.FAILED_SAVE_RESUME_PREFIX}: ${data.message || res.status}`, 'error');
+              showInlineMessage(resumeContainer, `Failed to save resume: ${data.message || res.status}`, 'error');
             }
           } catch (err) {
             console.error(err);
-            showInlineMessage(resumeContainer, STRINGS.NETWORK_ERROR_RESUME, 'error');
+            showInlineMessage(resumeContainer, 'Network error while saving resume.', 'error');
           }
         });
 
-        // Pre-fill textarea with existing resume
+        
         try {
           const res = await fetch(`${API_BASE}/user/resume`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -779,12 +782,12 @@ function setupResumeDropdown() {
       }
 
       resumeContainer.style.display = 'block';
-      addResumeBtn.textContent = STRINGS.HIDE_RESUME;
+      addResumeBtn.textContent = 'Hide Resume';
       isVisible = true;
 
     } else {
       resumeContainer.style.display = 'none';
-      addResumeBtn.textContent = STRINGS.ADD_NEW_RESUME;
+      addResumeBtn.textContent = 'Add new Resume';
       isVisible = false;
     }
   });
@@ -814,11 +817,11 @@ function improveResume() {
     console.log("Improve Resume button clicked");
     const currentResumeContainer = document.getElementById('currentResumeContainer');
     const resumeText = currentResumeContainer.textContent.trim();
-    if (!resumeText || resumeText === STRINGS.NO_RESUME || resumeText === STRINGS.ERROR_LOADING_RESUME) {
-      showInlineMessage(improvedResumeContainer, STRINGS.UPLOAD_RESUME_FIRST, 'error');
+    if (!resumeText || resumeText === 'No resume uploaded yet.' || resumeText === 'Error loading resume') {
+      showInlineMessage(improvedResumeContainer, 'Please upload your resume first.', 'error');
       return;
     }
-    improvedResumeContainer.textContent = STRINGS.IMPROVING_RESUME;
+    improvedResumeContainer.textContent = 'Improving your resume, please wait...';
 
     try {
       // Send resume to server endpoint which proxies to the AI
@@ -836,25 +839,25 @@ function improveResume() {
       }
 
       const data = await res.json();
-      const improvedContent = data?.ai?.choices?.[0]?.message?.content || data?.ai?.message || STRINGS.NO_AI_RESPONSE;
+      const improvedContent = data?.ai?.choices?.[0]?.message?.content || data?.ai?.message || 'No response received.';
 
-      // Side-by-side view: AI recommendations (left) and editable current resume (right)
+      
       improvedResumeContainer.innerHTML = `
               <div style="display:flex; gap:16px; align-items:flex-start;">
                 <div style="flex:1;">
-                  <h3>${STRINGS.AI_RECOMMENDATION_HEADER}</h3>
+                  <h3>AI Recommendations</h3>
                   <div id="improvedResumeContent" style="white-space: pre-wrap; border:1px solid #ddd; padding:10px; background:#fff; min-height:200px;">${improvedContent.replace(/\n/g, '<br>')}</div>
                 </div>
                 <div style="flex:1;">
-                  <h3>${STRINGS.RESUME_SUBHEADER}</h3>
-                  <textarea id="resumeEditor" style="width:100%; height:320px; padding:8px; font-size:14px;">${STRINGS.LOADING_RESUME_EDITOR}</textarea>
+                  <h3>Your Current Resume (editable)</h3>
+                  <textarea id="resumeEditor" style="width:100%; height:320px; padding:8px; font-size:14px;">Loading current resume...</textarea>
                   <div style="margin-top:8px; display:flex; gap:8px;">
-                    <button id="saveResumeBtn">${STRINGS.SAVE}</button>
-                    <button id="cancelResumeBtn">${STRINGS.CANCEL}</button>
+                    <button id="saveResumeBtn">Save</button>
+                    <button id="cancelResumeBtn">Cancel</button>
                   </div>
                 </div>
               </div>
-              <div style="margin-top:8px;"><button id="discardImprovementsBtn">${STRINGS.DISCARD}</button></div>
+              <div style="margin-top:8px;"><button id="discardImprovementsBtn">Discard</button></div>
             `;
 
       // Fill editor with current resume text (loaded from page)
@@ -879,8 +882,8 @@ function improveResume() {
       // POST helper
       async function postResume(text, button) {
         const token = localStorage.getItem('token');
-        if (!token) { showInlineMessage(improvedResumeContainerElem, STRINGS.MUST_LOGIN_RESUME, 'error'); return; }
-        if (button) { button.disabled = true; button.textContent = STRINGS.SAVING; }
+        if (!token) { showInlineMessage(improvedResumeContainerElem, 'You must be logged in to save your resume.', 'error'); return; }
+        if (button) { button.disabled = true; button.textContent = 'Saving...'; }
         try {
           const res2 = await fetch(`${API_BASE}/user/resume`, {
             method: 'POST',
@@ -893,14 +896,14 @@ function improveResume() {
               currentResumeContainerElem.textContent = text;
               currentResumeContainerElem.style.whiteSpace = 'pre-wrap';
             }
-            showInlineMessage(improvedResumeContainerElem, STRINGS.RESUME_SAVED, 'success');
+            showInlineMessage(improvedResumeContainerElem, 'Resume saved successfully.', 'success');
           } else {
-            showInlineMessage(improvedResumeContainerElem, `${STRINGS.FAILED_SAVE_RESUME}: ${json.message || res2.status}`, 'error');
-            if (button) { button.disabled = false; button.textContent = STRINGS.SAVE; }
+            showInlineMessage(improvedResumeContainerElem, `Failed to save resume: ${json.message || res2.status}`, 'error');
+            if (button) { button.disabled = false; button.textContent = 'Save'; }
           }
         } catch (err) {
-          showInlineMessage(improvedResumeContainerElem, `${STRINGS.NETWORK_ERROR}: ${err.message}`, 'error');
-          if (button) { button.disabled = false; button.textContent = STRINGS.SAVE; }
+          showInlineMessage(improvedResumeContainerElem, `Network error: ${err.message}`, 'error');
+          if (button) { button.disabled = false; button.textContent = 'Save'; }
         }
       }
 
@@ -922,37 +925,39 @@ function improveResume() {
 
 document.addEventListener('DOMContentLoaded', improveResume);
 
-// --- Skills page: load and add skills ---
+
 async function fetchAndRenderSkills() {
   const container = document.getElementById('skillsContainer');
   if (!container) return;
 
   const token = localStorage.getItem('token');
   if (!token) {
-    container.innerHTML = `<p>${STRINGS.LOGIN_TO_VIEW_SKILLS}</p>`;
+    container.innerHTML = '<p>Please log in to view your skills.</p>';
     return;
   }
 
-  container.innerHTML = `<p>${STRINGS.LOADING_SKILLS}</p>`;
+  container.innerHTML = '<p>Loading skills...</p>';
 
   try {
     const res = await fetch(`${API_BASE}/user/skills`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) {
-      container.innerHTML = `<p>${STRINGS.ERROR_LOADING_SKILLS}: ${res.status}</p>`;
+      container.innerHTML = `<p>Error loading skills: ${res.status}</p>`;
       return;
     }
     const data = await res.json();
     const skills = Array.isArray(data.skills) ? data.skills : [];
 
     if (skills.length === 0) {
-      container.innerHTML = `<p>${STRINGS.NO_SKILLS}</p>`;
+      container.innerHTML = '<p>No skills added yet.</p>';
       return;
     }
 
-    // Render skills as articles similar to the original markup
+    
     container.innerHTML = '';
+
+    
 
     skills.forEach(skill => {
       const article = document.createElement('article');
@@ -962,7 +967,7 @@ async function fetchAndRenderSkills() {
       h2.textContent = skill;
 
       const delBtn = document.createElement('button');
-      delBtn.textContent = STRINGS.DELETE;
+      delBtn.textContent = "Delete";
       delBtn.style.marginLeft = "12px";
       delBtn.onclick = () => deleteSkill(skill);
 
@@ -973,15 +978,15 @@ async function fetchAndRenderSkills() {
 
 
   } catch (err) {
-    console.error(STRINGS.FAILED_LOAD_SKILLS, err);
-    container.innerHTML = ` <p>${STRINGS.SKILLS_LOARD_ERROR}</p>`;
+    console.error('Failed to load skills:', err);
+    container.innerHTML = '<p>Error loading skills</p>';
   }
 }
 
 async function deleteSkill(skill) {
   const token = localStorage.getItem('token');
   if (!token) {
-    showGlobalMessage(STRINGS.YOU_ARE_NOT_LOGGED_IN, "error");
+    showGlobalMessage("You are not logged in.", "error");
     return;
   }
 
@@ -998,13 +1003,13 @@ async function deleteSkill(skill) {
     const data = await res.json();
 
     if (res.ok) {
-      showGlobalMessage(STRINGS.SKILL_DELETED, "success");
+      showGlobalMessage("Skill deleted.", "success");
       fetchAndRenderSkills(); // refresh skills list
     } else {
-      showGlobalMessage(data.message || STRINGS.FAILED_DELETE_SKILL, "error");
+      showGlobalMessage(data.message || "Failed to delete skill", "error");
     }
   } catch (err) {
-    showGlobalMessage(STRINGS.NETWORK_ERROR + err.message, "error");
+    showGlobalMessage("Network error: " + err.message, "error");
   }
 }
 
@@ -1018,7 +1023,7 @@ function setupSkillsPage() {
   fetchAndRenderSkills();
 
   addBtn.addEventListener('click', () => {
-    // If an input area already exists, toggle visibility
+    
     if (document.getElementById('newSkillInput')) {
       const wrapper = document.getElementById('newSkillWrapper');
       if (wrapper) wrapper.remove();
@@ -1032,16 +1037,16 @@ function setupSkillsPage() {
     const input = document.createElement('input');
     input.id = 'newSkillInput';
     input.type = 'text';
-    input.placeholder = STRINGS.ENTER_SKILL;
+    input.placeholder = 'Enter a skill';
     input.style.padding = '6px';
     input.style.minWidth = '220px';
 
     const save = document.createElement('button');
-    save.textContent = STRINGS.SAVE;
+    save.textContent = 'Save';
     save.style.marginLeft = '8px';
 
     const cancel = document.createElement('button');
-    cancel.textContent = STRINGS.CANCEL;
+    cancel.textContent = 'Cancel';
     cancel.style.marginLeft = '6px';
 
     wrapper.appendChild(input);
@@ -1053,12 +1058,12 @@ function setupSkillsPage() {
 
     save.addEventListener('click', async () => {
       const skill = input.value.trim();
-      if (!skill) { showInlineMessage(wrapper, STRINGS.ENTER_SKILL, 'error'); return; }
+      if (!skill) { showInlineMessage(wrapper, 'Please enter a skill', 'error'); return; }
 
       const token = localStorage.getItem('token');
-      if (!token) { showInlineMessage(wrapper, STRINGS.MUST_LOGIN_ADD_SKILL, 'error'); return; }
+      if (!token) { showInlineMessage(wrapper, 'You must be logged in to add skills', 'error'); return; }
 
-      save.disabled = true; save.textContent = STRINGS.SAVING;
+      save.disabled = true; save.textContent = 'Saving...';
       try {
         const res = await fetch(`${API_BASE}/user/skills`, {
           method: 'POST',
@@ -1070,12 +1075,12 @@ function setupSkillsPage() {
           wrapper.remove();
           fetchAndRenderSkills();
         } else {
-          showInlineMessage(wrapper, `${STRINGS.FAILED_ADD_SKILL}: ${data.message || res.status}`, 'error');
-          save.disabled = false; save.textContent = STRINGS.SAVE;
+          showInlineMessage(wrapper, `Failed to add skill: ${data.message || res.status}`, 'error');
+          save.disabled = false; save.textContent = 'Save';
         }
       } catch (err) {
-        showInlineMessage(wrapper, `${STRINGS.NETWORK_ERROR}: ${err.message}`, 'error');
-        save.disabled = false; save.textContent = STRINGS.SAVE;
+        showInlineMessage(wrapper, `Network error: ${err.message}`, 'error');
+        save.disabled = false; save.textContent = 'Save';
       }
     });
   });
@@ -1083,7 +1088,7 @@ function setupSkillsPage() {
 
 document.addEventListener('DOMContentLoaded', setupSkillsPage);
 
-// ==== USER JOB SEARCH PAGE ====
+
 
 async function setupJobSearchPage() {
   const btn = document.getElementById('findJobsBtn');
@@ -1091,11 +1096,11 @@ async function setupJobSearchPage() {
   if (!btn || !output) return;
 
   btn.addEventListener('click', async () => {
-    output.textContent = STRINGS.SEARCHING_JOBS;
+    output.textContent = "Searching jobs...";
 
     const token = localStorage.getItem('token');
     if (!token) {
-      output.textContent = STRINGS.PLEASE_LOGIN_FIRST;
+      output.textContent = "Please log in first.";
       return;
     }
 
@@ -1109,7 +1114,7 @@ async function setupJobSearchPage() {
       const userSkills = Array.isArray(skillData.skills) ? skillData.skills : [];
 
       if (userSkills.length === 0) {
-        output.textContent = STRINGS.NO_SKILLS_SAVED;
+        output.textContent = "You have no skills saved. Add skills first!";
         return;
       }
 
@@ -1136,12 +1141,12 @@ async function setupJobSearchPage() {
       const data = await res.json();
 
       if (data.error) {
-        output.textContent = `${STRINGS.SERVER_ERROR}: ${data.error}`;
+        output.textContent = `Server Error: ${data.error}`;
         return;
       }
 
       if (!data.jobs || data.jobs.length === 0) {
-        output.textContent = STRINGS.NO_MATCHING_JOBS;
+        output.textContent = "No matching jobs found.";
         return;
       }
 
@@ -1158,18 +1163,19 @@ async function setupJobSearchPage() {
         div.innerHTML = `
         <h3><a href="${job.url}" target="_blank">${job.title}</a></h3>
         <p><strong>Company:</strong> ${job.company}</p>
-        <p><strong>Location:</strong> ${job.location || STRINGS.NOT_AVAILABLE}</p>
-        <p><strong>AI Summary:</strong><br>${job.ai_summary || STRINGS.NO_SUMMARY}</p>
+        <p><strong>Location:</strong> ${job.location || "N/A"}</p>
+        <p><strong>AI Summary:</strong><br>${job.ai_summary || "No summary"}</p>
       `;
 
         output.appendChild(div);
       });
 
     } catch (err) {
-      output.textContent = `${STRINGS.NETWORK_ERROR} ${err.message}`;
+      output.textContent = `Network error: ${err.message}`;
     }
   });
 }
+
 
 document.addEventListener('DOMContentLoaded', setupJobSearchPage);
 
