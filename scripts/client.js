@@ -657,10 +657,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
           jobDiv.innerHTML = `
         <h3><a href="${job.url}" target="_blank">${job.title}</a></h3>
-        <p><strong>${STRINGS.COMPANY_LABELS}</strong> ${job.company}</p>
+        <p><strong>${STRINGS.COMPANY_LABEL}</strong> ${job.company}</p>
         <p><strong>${STRINGS.LOCATION_LABEL}</strong> ${job.location}</p>
         <p><strong>${STRINGS.SUMMARY_LABEL}</strong> ${job.summary}</p>
-        <p><strong>${STRINGS.URL_LABEL}</strong> <a href="${job.url}" target="_blank">${job.url}</a></p>
       `;
 
           outputDiv.appendChild(jobDiv);
