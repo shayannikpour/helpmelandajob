@@ -79,5 +79,17 @@ export const STRINGS = {
   REQUEST_FAILED_PREFIX: "Request failed:",
   SKILLS_LOAD_ERROR: "Error loading skills.",
   AI_RECOMMENDATION_HEADER: "AI Recommendations",
-  RESUME_SUBHEADER: "Your Current Resume (editable)"
+  RESUME_SUBHEADER: "Your Current Resume (editable)",
+  CHANGE_STATUS_LABEL: "Change status",
+  QUESTION_LABEL: "Question ",
+  ERROR_INVALID_EMAIL_FORMAT: "Invalid email format",
+  INVALID_EMAIL_FORMAT: "Please enter a valid email format.",
+  START_TOKEN_COUNT: "0/20",
+  ASSISTANT_LABEL: "Assistant:",
+  ERROR: "Error",
+
+  COMPANY_LABEL: "Company: ",
+  LOCATION_LABEL: "Location: ",
+  SUMMARY_LABEL: "Summary: ",
+  URL_LABEL: "URL: ",
 };
