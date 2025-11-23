@@ -215,7 +215,7 @@ function getLeetCodeQuestions() {
       return;
     }
 
-    // Drop JSON, use QUESTION/ANSWER markers instead – much more robust
+    
     const prompt = `
 You are generating LeetCode-style coding interview questions.
 
@@ -278,7 +278,7 @@ Rules:
 
 
 
-  // Parse "QUESTION: ... ANSWER: ..." format
+  
   function parseQuestionAnswer(raw) {
     const parts = raw.split(/ANSWER:/i);
     if (parts.length < 2) {
@@ -288,7 +288,7 @@ Rules:
     const questionPart = parts[0].replace(/QUESTION:/i, "").trim();
     const answerPart = parts.slice(1).join("ANSWER:").trim(); // in case "ANSWER:" appears again
 
-    // Basic sanity checks
+    
     if (!questionPart || questionPart.length < 10) {
       return null;
     }
@@ -332,10 +332,10 @@ Rules:
     const answer = document.getElementById(id);
     if (!answer) return;
 
-    // Toggle the "revealed" class
+    
     answer.classList.toggle("revealed");
 
-    // Update button text
+    
     if (answer.classList.contains("revealed")) {
       button.textContent = "Hide Answer";
     } else {
@@ -346,7 +346,7 @@ Rules:
 
   function formatText(text) {
     if (!text) return "";
-    // Preserve newlines from the model
+    
     return text.replace(/\r\n/g, "\n").replace(/\n/g, "<br>");
   }
 
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', getLeetCodeQuestions);
 
 
 
-// Simple UI message helpers to replace alert()
+
 function showGlobalMessage(msg, type = 'error') {
   let g = document.getElementById('globalMessage');
   if (!g) {
@@ -386,7 +386,7 @@ function showGlobalMessage(msg, type = 'error') {
 
 function showInlineMessage(targetElem, msg, type = 'error') {
   if (!targetElem) { showGlobalMessage(msg, type); return; }
-  // place message directly after the target element
+  
   let parent = targetElem.parentNode || document.body;
   let existing = parent.querySelector('.inline-message');
   if (!existing) {
@@ -420,7 +420,7 @@ async function handleLogin(e) {
   try {
     const res = await fetch(`${API_BASE}/login`, {
       method: 'POST',
-      // credentials: 'include',
+      
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
@@ -429,7 +429,7 @@ async function handleLogin(e) {
 
     if (res.ok && data.token) {
       localStorage.setItem('token', data.token);
-      localStorage.setItem('isAdmin', data.isAdmin);  // <-- FIXED
+      localStorage.setItem('isAdmin', data.isAdmin);  
 
       if (data.isAdmin) {
         window.location.href = 'admin-home.html';
@@ -467,7 +467,7 @@ async function handleRegister(e) {
   }
 
 
-  // Check if passwords match
+  
   if (password !== confirmPassword) {
     status.textContent = "Passwords do not match";
     status.style.color = 'red';
@@ -527,7 +527,7 @@ async function verifyLogin() {
       if (isAdminStored && !window.location.href.includes('admin-home.html')) {
         window.location.href = 'admin-home.html';
       }
-      // update API calls display (if present on the page)
+      
       fetchAndShowApiCalls().catch(err => console.error('Failed to load api calls:', err));
     } else {
       localStorage.removeItem('token');
@@ -542,7 +542,7 @@ async function verifyLogin() {
   }
 }
 
-// Fetch the user's api_calls and show "{api_calls}/20" in #apiCallsDisplay (if present)
+
 async function fetchAndShowApiCalls() {
   const el = document.getElementById('apiCallsDisplay');
   if (!el) return;
@@ -571,7 +571,7 @@ async function fetchAndShowApiCalls() {
 }
 
 document.addEventListener('DOMContentLoaded', verifyLogin);
-// Also attempt to populate the api call counter on page load (will use token if present)
+
 document.addEventListener('DOMContentLoaded', () => { fetchAndShowApiCalls().catch(() => { }); });
 
 function logout() {
@@ -697,7 +697,7 @@ function setupResumeDropdown() {
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  // Load existing resume and display it in the div
+  
   async function loadCurrentResume() {
     try {
       const res = await fetch(`${API_BASE}/user/resume`, {
@@ -705,7 +705,7 @@ function setupResumeDropdown() {
       });
       const data = await res.json();
       currentResumeContainer.textContent = data.resume || 'No resume uploaded yet.';
-      currentResumeContainer.style.whiteSpace = 'pre-wrap'; // preserve line breaks
+      currentResumeContainer.style.whiteSpace = 'pre-wrap'; 
       currentResumeContainer.style.border = '1px solid #ccc';
       currentResumeContainer.style.padding = '10px';
       currentResumeContainer.style.marginBottom = '10px';
@@ -758,7 +758,7 @@ function setupResumeDropdown() {
             const data = await res.json();
             if (res.ok) {
               showInlineMessage(resumeContainer, 'Resume saved successfully!', 'success');
-              // Update the current resume div
+              
               loadCurrentResume();
             } else {
               showInlineMessage(resumeContainer, `Failed to save resume: ${data.message || res.status}`, 'error');
@@ -769,7 +769,7 @@ function setupResumeDropdown() {
           }
         });
 
-        // Pre-fill textarea with existing resume
+        
         try {
           const res = await fetch(`${API_BASE}/user/resume`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -841,7 +841,7 @@ function improveResume() {
       const data = await res.json();
       const improvedContent = data?.ai?.choices?.[0]?.message?.content || data?.ai?.message || 'No response received.';
 
-      // Side-by-side view: AI recommendations (left) and editable current resume (right)
+      
       improvedResumeContainer.innerHTML = `
               <div style="display:flex; gap:16px; align-items:flex-start;">
                 <div style="flex:1;">
@@ -925,7 +925,7 @@ function improveResume() {
 
 document.addEventListener('DOMContentLoaded', improveResume);
 
-// --- Skills page: load and add skills ---
+
 async function fetchAndRenderSkills() {
   const container = document.getElementById('skillsContainer');
   if (!container) return;
@@ -954,17 +954,10 @@ async function fetchAndRenderSkills() {
       return;
     }
 
-    // Render skills as articles similar to the original markup
+    
     container.innerHTML = '';
 
-    // skills.forEach(s => {
-    //   const article = document.createElement('article');
-    //   article.className = 'skill';
-    //   const h2 = document.createElement('h2');
-    //   h2.textContent = s;
-    //   article.appendChild(h2);
-    //   container.appendChild(article);
-    // });
+    
 
     skills.forEach(skill => {
       const article = document.createElement('article');
@@ -1030,7 +1023,7 @@ function setupSkillsPage() {
   fetchAndRenderSkills();
 
   addBtn.addEventListener('click', () => {
-    // If an input area already exists, toggle visibility
+    
     if (document.getElementById('newSkillInput')) {
       const wrapper = document.getElementById('newSkillWrapper');
       if (wrapper) wrapper.remove();
@@ -1095,7 +1088,7 @@ function setupSkillsPage() {
 
 document.addEventListener('DOMContentLoaded', setupSkillsPage);
 
-// ==== USER JOB SEARCH PAGE ====
+
 
 async function setupJobSearchPage() {
   const btn = document.getElementById('findJobsBtn');
@@ -1182,72 +1175,7 @@ async function setupJobSearchPage() {
     }
   });
 }
-//   btn.addEventListener('click', async () => {
-//     output.textContent = "Searching jobs...";
 
-//     const token = localStorage.getItem('token');
-//     if (!token) {
-//       output.textContent = "Please log in first.";
-//       return;
-//     }
-
-//     try {
-//       const res = await fetch(`${API_BASE}/jobs/search_user`, {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${token}`
-//         },
-//         body: JSON.stringify({
-//           job_wanted: "Software Engineer",
-//           location: "Vancouver",
-//           skills: ["Java", "JavaScript", "Python", "SQL"],
-//           limit: 5
-//         })
-//       });
-
-//       if (!res.ok) {
-//         output.textContent = `Error: ${res.status}`;
-//         return;
-//       }
-
-//       const data = await res.json();
-
-//       if (data.error) {
-//         output.textContent = `Server Error: ${data.error}`;
-//         return;
-//       }
-
-//       if (!data.jobs || data.jobs.length === 0) {
-//         output.textContent = "No matching jobs found.";
-//         return;
-//       }
-
-//       // render only FILTERED jobs
-//       output.innerHTML = "";
-
-//       data.jobs.forEach(job => {
-//         const div = document.createElement("div");
-//         div.style.border = "1px solid #ccc";
-//         div.style.padding = "10px";
-//         div.style.marginBottom = "10px";
-//         div.style.background = "#f9f9f9";
-
-//         div.innerHTML = `
-//           <h3><a href="${job.url}" target="_blank">${job.title}</a></h3>
-//           <p><strong>Company:</strong> ${job.company}</p>
-//           <p><strong>Location:</strong> ${job.location || "N/A"}</p>
-//           <p><strong>AI Summary:</strong><br>${job.ai_summary || "No summary"}</p>
-//         `;
-
-//         output.appendChild(div);
-//       });
-
-//     } catch (err) {
-//       output.textContent = `Network error: ${err.message}`;
-//     }
-//   });
-// }
 
 document.addEventListener('DOMContentLoaded', setupJobSearchPage);
 
