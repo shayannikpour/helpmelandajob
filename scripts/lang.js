@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ================================
     if (path.endsWith("/jobs.html")) {
 
-        const h1 = document.querySelector("h1");
+        const h1 = document.getElementById("jobsTitle");
         if (h1) h1.textContent = STRINGS.JOBS_HEADER;
 
         const findBtn = document.getElementById("findJobsBtn");
