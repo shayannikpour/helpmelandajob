@@ -124,7 +124,7 @@ export const STRINGS = {
   ADMIN_WELCOME: "Welcome to your Admin Page, ",
   USERNAME_LABEL: "Username",
   API_CALLS_LABEL: "API Calls",
-  ADMIN_LABEL: "Welcome Admin",
+  ADMIN_LABEL: "Admin",
   STATUS_LABEL: "Status",
   ENDPOINTS_HEADER: "API Endpoints Usage",
   ENDPOINTS_ID_LABEL: "ID",
