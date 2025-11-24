@@ -174,6 +174,7 @@ export const STRINGS = {
 
   //Footer
   FOOTER_TEXT: "© 2025 HelpMeLandAJob. All rights reserved.",
+  NAV_TITLE: "HelpMeLandAJob",
 
 
 };

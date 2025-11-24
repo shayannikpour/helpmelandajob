@@ -304,5 +304,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    const mainTitle = document.getElementById("mainTitle");
+    if (mainTitle) {
+        mainTitle.textContent = STRINGS.NAV_TITLE;
+    }
+
 
 });
