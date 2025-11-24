@@ -127,4 +127,14 @@ export const STRINGS = {
   ADMIN_LABEL: "Admin",
   STATUS_LABEL: "Status",
 
+
+  // Navigation
+  NAV_RESUME: "Your Resume",
+  NAV_SKILLS: "Skills",
+  NAV_JOBS: "Job Recommendations",
+  NAV_LEETCODE: "LeetCode Type Questions",
+  NAV_ACCOUNT: "Account",
+  NAV_ADMIN: "Admin",
+  NAV_TITLE: "HelpMeLandAJob",
+
 };

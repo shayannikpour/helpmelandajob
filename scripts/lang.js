@@ -109,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // LOGIN PAGE
     // ================================
     if (path.endsWith("/login.html")) {
+        console.log("Login page");
 
         const h1 = document.querySelector("h1");
         if (h1) h1.textContent = STRINGS.LOGIN_HEADER;
@@ -131,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // REGISTER PAGE
     // ================================
     if (path.endsWith("/register.html")) {
+        console.log("Register page");
 
         const h1 = document.querySelector("h1");
         if (h1) h1.textContent = STRINGS.REGISTER_HEADER;
@@ -179,5 +181,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const improveBtn = document.getElementById("improveResumeBtn");
         if (improveBtn) improveBtn.textContent = STRINGS.IMPROVING_RESUME;
     }
+
+
+
+    // ================================
+    // UNIVERSAL NAVIGATION TEXT
+    // ================================
+    const navResume = document.querySelector('nav a[href="resume.html"]');
+    if (navResume) navResume.textContent = STRINGS.NAV_RESUME;
+
+    const navSkills = document.querySelector('nav a[href="skills.html"]');
+    if (navSkills) navSkills.textContent = STRINGS.NAV_SKILLS;
+
+    const navJobs = document.querySelector('nav a[href="jobs.html"]');
+    if (navJobs) navJobs.textContent = STRINGS.NAV_JOBS;
+
+    const navLeetcode = document.querySelector('nav a[href="leetcode.html"]');
+    if (navLeetcode) navLeetcode.textContent = STRINGS.NAV_LEETCODE;
+
+    const navAccount = document.querySelector('nav a[href="account.html"]');
+    if (navAccount) navAccount.textContent = STRINGS.NAV_ACCOUNT;
+
+    // Admin link (only appears on some pages)
+    const navAdmin = document.querySelector('#adminLink');
+    if (navAdmin) navAdmin.textContent = STRINGS.NAV_ADMIN;
+
+    // Header title
+    const headerTitle = document.querySelector('header h1');
+    if (headerTitle) headerTitle.textContent = STRINGS.NAV_TITLE;
+
 
 });
