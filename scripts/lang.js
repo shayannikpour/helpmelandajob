@@ -83,13 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // HOME PAGE (after login)
     // ================================
     if (path.endsWith("/home.html")) {
-        const h1 = document.querySelector("h1");
-        if (h1) {
-            // keep username span intact
-            const span = document.getElementById("usernameDisplay");
-            h1.textContent = STRINGS.HOME_WELCOME || "Welcome, ";
-            if (span) h1.appendChild(span);
-        }
+        const apiCallsLabel = document.querySelector("p");
+        if (apiCallsLabel) apiCallsLabel.textContent = STRINGS.API_CALLS_LABEL + ":";
 
         const apiCallDisplay = document.getElementById("apiCallsDisplay");
         if (apiCallDisplay) apiCallDisplay.textContent = STRINGS.START_TOKEN_COUNT;
