@@ -91,4 +91,40 @@ export const STRINGS = {
   LOCATION_LABEL: "Location: ",
   SUMMARY_LABEL: "AI Summary: ",
   URL_LABEL: "URL: ",
+
+  // Home Page
+  HOMEPAGE_TITLE: "Help me land a job",
+  HOMEPAGE_SUBTITLE: "The one and only website that's going to help you land a job in todays awful job market",
+
+  // Login/Register shared
+  LOGIN_HEADER: "Login",
+  REGISTER_HEADER: "Register",
+  LOGIN_BTN: "Login",
+  REGISTER_BTN: "Register",
+  EMAIL_LABEL: "Email:",
+  PASSWORD_LABEL: "Password:",
+  CONFIRM_PASSWORD_LABEL: "Confirm Password:",
+
+  // Account Page
+  ACCOUNT_HEADER: "Your Account",
+  LOGOUT: "Logout",
+
+  // Skills Page
+  SKILLS_HEADER: "Your Skills:",
+  ADD_SKILL: "Add new skill",
+
+  // Jobs Page
+  SEARCHING_JOBS_BTN: "Find Jobs Based on My Skills",
+
+  // LeetCode Page
+  LEETCODE_HEADER: "LeetCode Question Recommendations",
+  GET_QUESTIONS: "Get Questions",
+
+  // Admin Page
+  ADMIN_WELCOME: "Welcome to your Admin Page, ",
+  USERNAME_LABEL: "Username",
+  API_CALLS_LABEL: "API Calls",
+  ADMIN_LABEL: "Admin",
+  STATUS_LABEL: "Status",
+
 };
