@@ -111,7 +111,9 @@ export const STRINGS = {
 
   // Skills Page
   SKILLS_HEADER: "Your Skills:",
-  ADD_SKILL: "Add new skill",
+  SKILLS_PARAGRAPH: "Enter one skill (use a single word, like “Java” or “Leadership”)",
+  ADD_SKILL_BUTTON: "Add new skill",
+
 
   // Jobs Page
   JOBS_HEADER: "Find Jobs",

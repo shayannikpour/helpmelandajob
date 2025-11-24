@@ -221,11 +221,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // ================================
     if (path.endsWith("/skills.html")) {
 
-        const h1 = document.querySelector("h1");
-        if (h1) h1.textContent = STRINGS.SKILLS_HEADER;
+        console.log("Skills page detected");
 
-        const addSkillBtn = document.getElementById("addSkillBtn");
-        if (addSkillBtn) addSkillBtn.textContent = STRINGS.ADD_SKILL;
+        // Header (H1)
+        const header = document.getElementById("skillsHeader");
+        if (header) header.textContent = STRINGS.SKILLS_HEADER;
+
+        // Paragraph under header
+        const paragraph = document.getElementById("skillParagraph");
+        if (paragraph) paragraph.textContent = STRINGS.SKILLS_PARAGRAPH;
+
+        // Add new skill button
+        const addBtn = document.getElementById("addSkillBtn");
+        if (addBtn) addBtn.textContent = STRINGS.ADD_SKILL_BUTTON;
     }
 
 
