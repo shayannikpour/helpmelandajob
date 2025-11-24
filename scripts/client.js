@@ -1178,6 +1178,3 @@ async function setupJobSearchPage() {
 
 
 document.addEventListener('DOMContentLoaded', setupJobSearchPage);
-
-
-
