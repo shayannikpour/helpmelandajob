@@ -114,6 +114,7 @@ export const STRINGS = {
   ADD_SKILL: "Add new skill",
 
   // Jobs Page
+  JOBS_HEADER: "Find Jobs",
   SEARCHING_JOBS_BTN: "Find Jobs Based on My Skills",
 
   // LeetCode Page
