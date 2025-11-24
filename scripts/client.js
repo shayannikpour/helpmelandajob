@@ -513,11 +513,15 @@ async function verifyLogin() {
     const data = await res.json();
 
     if (res.ok) {
+      
       const usernameElem = document.getElementById('usernameDisplay');
       if (usernameElem) {
         const cleanName = data.username.split('@')[0];
         usernameElem.textContent = cleanName;
+        console.log(cleanName);
       }
+
+      
 
 
       const isAdminStored = localStorage.getItem('isAdmin') === '1';
