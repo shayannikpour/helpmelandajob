@@ -236,6 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // RESUME PAGE
     // ================================
     if (path.endsWith("/resume.html")) {
+        console.log("Resume page");
 
         // Header
         const resumeHeader = document.getElementById("resumeHeader");
