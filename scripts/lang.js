@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (addBtn) addBtn.textContent = STRINGS.ADD_NEW_RESUME;
 
         const improveBtn = document.getElementById("improveResumeBtn");
-        if (improveBtn) improveBtn.textContent = STRINGS.IMPROVING_RESUME;
+        if (improveBtn) improveBtn.textContent = STRINGS.IMPROVE_RESUME_BTN;
     }
 
 

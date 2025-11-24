@@ -165,4 +165,6 @@ export const STRINGS = {
   NAV_ADMIN: "Admin",
   NAV_TITLE: "HelpMeLandAJob",
 
+  RESUME_HEADER: "Current Resume:",
+
 };
