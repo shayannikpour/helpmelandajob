@@ -126,6 +126,11 @@ export const STRINGS = {
   API_CALLS_LABEL: "API Calls",
   ADMIN_LABEL: "Admin",
   STATUS_LABEL: "Status",
+  ENDPOINTS_HEADER: "API Endpoints Usage",
+  ENDPOINTS_ID_LABEL: "ID",
+  ENDPOINTS_METHOD_LABEL: "Method",
+  ENDPOINTS_ENDPOINT_LABEL: "Endpoint",
+  ENDPOINTS_REQUESTS_LABEL: "Requests",
 
 
   // Navigation

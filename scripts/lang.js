@@ -59,6 +59,23 @@ document.addEventListener("DOMContentLoaded", () => {
             if (th[2]) th[2].textContent = STRINGS.ADMIN_LABEL;
             if (th[3]) th[3].textContent = STRINGS.STATUS_LABEL;
         }
+
+        const endpointsTable = document.getElementById("endpointsTable");
+        if (endpointsTable) {
+
+            // Set the <h2> above the table
+            const endpointsHeader = document.querySelector('h2:nth-of-type(2)');
+            if (endpointsHeader) {
+                endpointsHeader.textContent = STRINGS.ENDPOINTS_HEADER;
+            }
+
+            const th2 = endpointsTable.querySelectorAll("th");
+
+            if (th2[0]) th2[0].textContent = STRINGS.ENDPOINTS_ID_LABEL;
+            if (th2[1]) th2[1].textContent = STRINGS.ENDPOINTS_METHOD_LABEL;
+            if (th2[2]) th2[2].textContent = STRINGS.ENDPOINTS_ENDPOINT_LABEL;
+            if (th2[3]) th2[3].textContent = STRINGS.ENDPOINTS_REQUESTS_LABEL;
+        }
     }
 
 
