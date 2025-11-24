@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ================================
     if (path.endsWith("/index.html") || path === "/" || path.endsWith("/")) {
 
+        console.log("Index page");
+
         const h1 = document.querySelector("h1");
         const h2 = document.querySelector("h2");
 
