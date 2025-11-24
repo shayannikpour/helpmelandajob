@@ -107,14 +107,59 @@ document.addEventListener("DOMContentLoaded", () => {
     // ================================
     // LEETCODE PAGE
     // ================================
+    // ================================
+    // LEETCODE PAGE
+    // ================================
     if (path.endsWith("/leetcode.html")) {
 
+        // Header text
         const header = document.querySelector(".leetcode-container h1");
         if (header) header.textContent = STRINGS.LEETCODE_HEADER;
 
+        // Label: programming language
+        const langLabel = document.querySelector('label[for="language"]')
+            || document.querySelector('.form-group label:nth-of-type(1)');
+        if (langLabel) langLabel.textContent = STRINGS.LEETCODE_LANG_LABEL;
+
+        // Label: difficulty
+        const diffLabel = document.querySelector('label[for="difficulty"]')
+            || document.querySelector('.form-group label:nth-of-type(2)');
+        if (diffLabel) diffLabel.textContent = STRINGS.LEETCODE_DIFF_LABEL;
+
+        // Populate languages
+        const langSelect = document.getElementById("language");
+        if (langSelect) {
+            langSelect.innerHTML = `
+            <option value="">${STRINGS.LEETCODE_SELECT_PLACEHOLDER}</option>
+            <option>${STRINGS.LANG_PYTHON}</option>
+            <option>${STRINGS.LANG_JAVASCRIPT}</option>
+            <option>${STRINGS.LANG_JAVA}</option>
+            <option>${STRINGS.LANG_CPP}</option>
+            <option>${STRINGS.LANG_C}</option>
+            <option>${STRINGS.LANG_CSHARP}</option>
+            <option>${STRINGS.LANG_GO}</option>
+            <option>${STRINGS.LANG_RUBY}</option>
+            <option>${STRINGS.LANG_SWIFT}</option>
+            <option>${STRINGS.LANG_KOTLIN}</option>
+        `;
+        }
+
+        // Populate difficulties
+        const diffSelect = document.getElementById("difficulty");
+        if (diffSelect) {
+            diffSelect.innerHTML = `
+            <option value="">${STRINGS.LEETCODE_SELECT_PLACEHOLDER}</option>
+            <option>${STRINGS.DIFF_EASY}</option>
+            <option>${STRINGS.DIFF_MEDIUM}</option>
+            <option>${STRINGS.DIFF_HARD}</option>
+        `;
+        }
+
+        // Submit button
         const submitBtn = document.getElementById("submitBtn");
         if (submitBtn) submitBtn.textContent = STRINGS.GET_QUESTIONS;
     }
+
 
 
     // ================================

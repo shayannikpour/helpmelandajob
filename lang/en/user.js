@@ -119,7 +119,29 @@ export const STRINGS = {
 
   // LeetCode Page
   LEETCODE_HEADER: "LeetCode Question Recommendations",
+  LEETCODE_LANG_LABEL: "Programming Language:",
+  LEETCODE_DIFF_LABEL: "Difficulty:",
+  LEETCODE_SELECT_PLACEHOLDER: "-- Select --",
+  LEETCODE_LOADING: "Loading...",
   GET_QUESTIONS: "Get Questions",
+
+  // Programming Languages
+  LANG_PYTHON: "Python",
+  LANG_JAVASCRIPT: "JavaScript",
+  LANG_JAVA: "Java",
+  LANG_CPP: "C++",
+  LANG_C: "C",
+  LANG_CSHARP: "C#",
+  LANG_GO: "Go",
+  LANG_RUBY: "Ruby",
+  LANG_SWIFT: "Swift",
+  LANG_KOTLIN: "Kotlin",
+
+  // Difficulties
+  DIFF_EASY: "Easy",
+  DIFF_MEDIUM: "Medium",
+  DIFF_HARD: "Hard",
+
 
   // Admin Page
   ADMIN_WELCOME: "Welcome to your Admin Page, ",
