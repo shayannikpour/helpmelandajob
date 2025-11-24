@@ -160,6 +160,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Submit button
         const submitBtn = document.getElementById("submitBtn");
         if (submitBtn) submitBtn.textContent = STRINGS.GET_QUESTIONS;
+
+        const loadingDiv = document.getElementById("loadingDiv");
+        if (loadingDiv) loadingDiv.textContent = STRINGS.LEETCODE_LOADING;
     }
 
 
