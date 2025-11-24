@@ -97,7 +97,7 @@ export const STRINGS = {
   HOMEPAGE_SUBTITLE: "The one and only website that's going to help you land a job in todays awful job market",
 
   // Login/Register shared
-  LOGIN_HEADER: "Login works",
+  LOGIN_HEADER: "Login",
   REGISTER_HEADER: "Register",
   LOGIN_BTN: "Login",
   REGISTER_BTN: "Register",
