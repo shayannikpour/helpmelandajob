@@ -121,6 +121,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const btn = document.querySelector("button");
         if (btn) btn.textContent = STRINGS.LOGIN_BTN;
+
+        const registerLink = document.querySelector('.form-footer a[href="register.html"]');
+        if (registerLink) registerLink.textContent = STRINGS.REGISTER_BTN;
     }
 
 
