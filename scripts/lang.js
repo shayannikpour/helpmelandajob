@@ -2,133 +2,174 @@ import { STRINGS } from "../lang/en/user.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    const path = window.location.pathname;
+
+    // ================================
+    // INDEX PAGE
+    // ================================
+    if (path.endsWith("/index.html") || path === "/" || path.endsWith("/")) {
+
+        const h1 = document.querySelector("h1");
+        const h2 = document.querySelector("h2");
+
+        if (h1) h1.textContent = STRINGS.HOMEPAGE_TITLE;
+        if (h2) h2.textContent = STRINGS.HOMEPAGE_SUBTITLE;
+
+        const loginBtn = document.querySelector('.form-footer a[href="pages/login.html"]');
+        if (loginBtn) loginBtn.textContent = STRINGS.LOGIN_BTN;
+
+        const registerBtn = document.querySelector('.form-footer a[href="pages/register.html"]');
+        if (registerBtn) registerBtn.textContent = STRINGS.REGISTER_BTN;
+    }
+
+
     // ================================
     // ACCOUNT PAGE
     // ================================
-    const accountHeader = document.querySelector("h1");
-    if (accountHeader && accountHeader.textContent.includes("Your Account")) {
-        // Replace header
-        accountHeader.textContent = STRINGS.ACCOUNT_HEADER || "Your Account";
+    if (path.endsWith("/account.html")) {
 
-        // Logout button
+        const accountHeader = document.querySelector("h1");
+        if (accountHeader) accountHeader.textContent = STRINGS.ACCOUNT_HEADER;
+
         const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) logoutBtn.textContent = STRINGS.LOGOUT || "Logout";
+        if (logoutBtn) logoutBtn.textContent = STRINGS.LOGOUT;
     }
 
+
     // ================================
-    // ADMIN PAGE
+    // ADMIN HOME PAGE
     // ================================
-    const adminWelcome = document.querySelector("h1 span#usernameDisplay");
-    if (adminWelcome) {
-        const title = document.querySelector("h1");
-        if (title) title.childNodes[0].textContent = STRINGS.ADMIN_WELCOME || "Welcome to your Admin Page, ";
+    if (path.endsWith("/admin-home.html")) {
+
+        const adminTitle = document.querySelector("h1");
+        if (adminTitle) {
+            // Preserve the username span
+            const span = adminTitle.querySelector("span#usernameDisplay");
+            adminTitle.textContent = STRINGS.ADMIN_WELCOME;
+            if (span) adminTitle.appendChild(span);
+        }
+
+        const userTable = document.getElementById("usersTable");
+        if (userTable) {
+            const th = userTable.querySelectorAll("th");
+            if (th[0]) th[0].textContent = STRINGS.USERNAME_LABEL;
+            if (th[1]) th[1].textContent = STRINGS.API_CALLS_LABEL;
+            if (th[2]) th[2].textContent = STRINGS.ADMIN_LABEL;
+            if (th[3]) th[3].textContent = STRINGS.STATUS_LABEL;
+        }
     }
 
-    const userTable = document.getElementById("usersTable");
-    if (userTable) {
-        // Replace column headers
-        const th = userTable.querySelectorAll("th");
-        if (th[0]) th[0].textContent = STRINGS.USERNAME_LABEL || "Username";
-        if (th[1]) th[1].textContent = STRINGS.API_CALLS_LABEL || "API Calls";
-        if (th[2]) th[2].textContent = STRINGS.ADMIN_LABEL || "Admin";
-        if (th[3]) th[3].textContent = STRINGS.STATUS_LABEL || "Status";
+
+    // ================================
+    // HOME PAGE (after login)
+    // ================================
+    if (path.endsWith("/home.html")) {
+        const h1 = document.querySelector("h1");
+        if (h1) {
+            // keep username span intact
+            const span = document.getElementById("usernameDisplay");
+            h1.textContent = STRINGS.HOME_WELCOME || "Welcome, ";
+            if (span) h1.appendChild(span);
+        }
+
+        const apiCallDisplay = document.getElementById("apiCallsDisplay");
+        if (apiCallDisplay) apiCallDisplay.textContent = STRINGS.START_TOKEN_COUNT;
     }
+
 
     // ================================
     // JOBS PAGE
     // ================================
-    const jobsHeader = document.querySelector("h1");
-    if (jobsHeader && jobsHeader.textContent.includes("Find Jobs")) {
+    if (path.endsWith("/jobs.html")) {
+
+        const h1 = document.querySelector("h1");
+        if (h1) h1.textContent = STRINGS.JOBS_HEADER || "Find Jobs";
+
         const findBtn = document.getElementById("findJobsBtn");
-        if (findBtn) findBtn.textContent = STRINGS.SEARCHING_JOBS_BTN || "Find Jobs Based on My Skills";
+        if (findBtn) findBtn.textContent = STRINGS.SEARCHING_JOBS_BTN;
     }
+
 
     // ================================
     // LEETCODE PAGE
     // ================================
-    const leetcodeHeader = document.querySelector(".leetcode-container h1");
-    if (leetcodeHeader) {
-        leetcodeHeader.textContent = STRINGS.LEETCODE_HEADER || "LeetCode Question Recommendations";
+    if (path.endsWith("/leetcode.html")) {
+
+        const header = document.querySelector(".leetcode-container h1");
+        if (header) header.textContent = STRINGS.LEETCODE_HEADER;
 
         const submitBtn = document.getElementById("submitBtn");
-        if (submitBtn) submitBtn.textContent = STRINGS.GET_QUESTIONS || "Get Questions";
+        if (submitBtn) submitBtn.textContent = STRINGS.GET_QUESTIONS;
     }
+
 
     // ================================
     // LOGIN PAGE
     // ================================
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
+    if (path.endsWith("/login.html")) {
+
         const h1 = document.querySelector("h1");
-        if (h1) h1.textContent = STRINGS.LOGIN_HEADER || "Login";
+        if (h1) h1.textContent = STRINGS.LOGIN_HEADER;
 
-        const usernameLabel = document.querySelector('label[for="username"]');
-        if (usernameLabel) usernameLabel.textContent = STRINGS.EMAIL_LABEL || "Email:";
+        const email = document.querySelector('label[for="username"]');
+        if (email) email.textContent = STRINGS.EMAIL_LABEL;
 
-        const passwordLabel = document.querySelector('label[for="password"]');
-        if (passwordLabel) passwordLabel.textContent = STRINGS.PASSWORD_LABEL || "Password:";
+        const pass = document.querySelector('label[for="password"]');
+        if (pass) pass.textContent = STRINGS.PASSWORD_LABEL;
 
-        const btn = loginForm.querySelector("button");
-        if (btn) btn.textContent = STRINGS.LOGIN_BTN || "Login";
+        const btn = document.querySelector("button");
+        if (btn) btn.textContent = STRINGS.LOGIN_BTN;
     }
+
 
     // ================================
     // REGISTER PAGE
     // ================================
-    const registerForm = document.getElementById("registerForm");
-    if (registerForm) {
+    if (path.endsWith("/register.html")) {
+
         const h1 = document.querySelector("h1");
-        if (h1) h1.textContent = STRINGS.REGISTER_HEADER || "Register";
+        if (h1) h1.textContent = STRINGS.REGISTER_HEADER;
 
         const email = document.querySelector('label[for="username"]');
-        if (email) email.textContent = STRINGS.EMAIL_LABEL || "Email:";
+        if (email) email.textContent = STRINGS.EMAIL_LABEL;
 
         const pass = document.querySelector('label[for="password"]');
-        if (pass) pass.textContent = STRINGS.PASSWORD_LABEL || "Password:";
+        if (pass) pass.textContent = STRINGS.PASSWORD_LABEL;
 
         const confirm = document.querySelector('label[for="confirmPassword"]');
-        if (confirm) confirm.textContent = STRINGS.CONFIRM_PASSWORD_LABEL || "Confirm Password:";
+        if (confirm) confirm.textContent = STRINGS.CONFIRM_PASSWORD_LABEL;
 
-        const btn = registerForm.querySelector("button");
-        if (btn) btn.textContent = STRINGS.REGISTER_BTN || "Register";
+        const btn = document.querySelector("button");
+        if (btn) btn.textContent = STRINGS.REGISTER_BTN;
     }
+
 
     // ================================
     // SKILLS PAGE
     // ================================
-    const skillsHeader = document.querySelector("h1");
-    if (skillsHeader && skillsHeader.textContent.includes("Your Skills")) {
+    if (path.endsWith("/skills.html")) {
+
+        const h1 = document.querySelector("h1");
+        if (h1) h1.textContent = STRINGS.SKILLS_HEADER;
+
         const addSkillBtn = document.getElementById("addSkillBtn");
-        if (addSkillBtn) addSkillBtn.textContent = STRINGS.ADD_SKILL || "Add new skill";
+        if (addSkillBtn) addSkillBtn.textContent = STRINGS.ADD_SKILL;
     }
 
+
     // ================================
-    // HOMEPAGE (index.html)
+    // RESUME PAGE
     // ================================
-    const homepageTitle = document.querySelector("h1");
-    const homepageSubtitle = document.querySelector("h2");
+    if (path.endsWith("/resume.html")) {
 
-    // detect homepage by text (safe)
-    if (homepageTitle && homepageTitle.textContent.includes("Help me land a job")) {
+        const h1 = document.querySelector("h1");
+        if (h1) h1.textContent = STRINGS.RESUME_HEADER || "Current Resume:";
 
-        // Title
-        homepageTitle.textContent = STRINGS.HOMEPAGE_TITLE || "Help me land a job";
+        const addBtn = document.getElementById("addResumeBtn");
+        if (addBtn) addBtn.textContent = STRINGS.ADD_NEW_RESUME;
 
-        // Subtitle
-        if (homepageSubtitle) {
-            homepageSubtitle.textContent =
-                STRINGS.HOMEPAGE_SUBTITLE ||
-                "The one and only website that's going to help you land a job in todays awful job market";
-        }
-
-        // Login button
-        const loginBtn = document.querySelector('.form-footer a[href="pages/login.html"]');
-        if (loginBtn) loginBtn.textContent = STRINGS.LOGIN_BTN || "Login";
-
-        // Register button
-        const registerBtn = document.querySelector('.form-footer a[href="pages/register.html"]');
-        if (registerBtn) registerBtn.textContent = STRINGS.REGISTER_BTN || "Register";
+        const improveBtn = document.getElementById("improveResumeBtn");
+        if (improveBtn) improveBtn.textContent = STRINGS.IMPROVING_RESUME;
     }
-
 
 });
