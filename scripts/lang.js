@@ -112,6 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ================================
     if (path.endsWith("/leetcode.html")) {
 
+        console.log("LeetCode page");
+
         // Header text
         const header = document.querySelector(".leetcode-container h1");
         if (header) header.textContent = STRINGS.LEETCODE_HEADER;
