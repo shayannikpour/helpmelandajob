@@ -172,4 +172,8 @@ export const STRINGS = {
   ADD_RESUME_BUTTON: "Add/Edit Resume",
   IMPROVE_BUTTON: "Improve my resume",
 
+  //Footer
+  FOOTER_TEXT: "© 2025 HelpMeLandAJob. All rights reserved.",
+
+
 };

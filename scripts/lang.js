@@ -295,4 +295,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (headerTitle) headerTitle.textContent = STRINGS.NAV_TITLE;
 
 
+    // ================================
+    // GLOBAL FOOTER TEXT
+    // ================================
+    const footer = document.getElementById("footerText");
+    if (footer) {
+        footer.textContent = STRINGS.FOOTER_TEXT;
+    }
+
+
+
 });
