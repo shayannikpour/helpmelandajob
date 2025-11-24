@@ -232,17 +232,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // ================================
     // RESUME PAGE
     // ================================
+    // ================================
+    // RESUME PAGE
+    // ================================
     if (path.endsWith("/resume.html")) {
 
-        const h1 = document.querySelector("h1");
-        if (h1) h1.textContent = STRINGS.RESUME_HEADER || "Current Resume:";
+        // Header
+        const resumeHeader = document.getElementById("resumeHeader");
+        if (resumeHeader) {
+            resumeHeader.textContent = STRINGS.RESUME_HEADER;
+        }
 
+        // Add/Edit Resume button
         const addBtn = document.getElementById("addResumeBtn");
-        if (addBtn) addBtn.textContent = STRINGS.ADD_NEW_RESUME;
+        if (addBtn) {
+            addBtn.textContent = STRINGS.ADD_RESUME_BUTTON;
+        }
 
+        // Improve Resume button
         const improveBtn = document.getElementById("improveResumeBtn");
-        if (improveBtn) improveBtn.textContent = STRINGS.IMPROVE_RESUME_BTN;
+        if (improveBtn) {
+            improveBtn.textContent = STRINGS.IMPROVE_BUTTON;
+        }
     }
+
 
 
 
