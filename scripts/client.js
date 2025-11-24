@@ -517,10 +517,11 @@ async function verifyLogin() {
       
       const usernameElem = document.getElementById('usernameDisplay');
       if (usernameElem) {
-        const cleanName = data.username.split('@')[0];
+        const stored = localStorage.getItem("username");
+        const cleanName = stored ? stored.split("@")[0] : data.username.split("@")[0];
         usernameElem.textContent = cleanName;
-        console.log(cleanName);
       }
+
 
       
 
