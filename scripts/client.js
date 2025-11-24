@@ -429,7 +429,8 @@ async function handleLogin(e) {
 
     if (res.ok && data.token) {
       localStorage.setItem('token', data.token);
-      localStorage.setItem('isAdmin', data.isAdmin);  
+      localStorage.setItem('isAdmin', data.isAdmin); 
+      localStorage.setItem('username', username); 
 
       if (data.isAdmin) {
         window.location.href = 'admin-home.html';
